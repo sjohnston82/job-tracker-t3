@@ -9,6 +9,8 @@ import {
   timestamp,
   varchar,
   boolean,
+  uuid,
+  pgTable,
 } from "drizzle-orm/pg-core";
 import { type AdapterAccount } from "next-auth/adapters";
 
@@ -20,8 +22,8 @@ import { type AdapterAccount } from "next-auth/adapters";
  */
 export const createTable = pgTableCreator((name) => `job-tracker-t3_${name}`);
 
-export const posts = createTable("jobApplication", {
-  id: serial("id").primaryKey(),
+export const jobApplications = createTable("jobApplication", {
+  id: varchar("id", { length: 191 }).primaryKey().notNull(),
   title: varchar("name", { length: 256 }),
   dateApplied: timestamp("dateApplied")
     .default(sql`CURRENT_TIMESTAMP`)
@@ -49,7 +51,9 @@ export const posts = createTable("jobApplication", {
   lastActivityDate: timestamp("lastActivityDate").default(
     sql`CURRENT_TIMESTAMP`,
   ),
-  owner: varchar("owner", { length: 255 }).notNull(),
+  owner: varchar("owner", { length: 255 })
+    .references(() => users.id)
+    .notNull(),
   jobType: varchar("jobType", { length: 255 }),
   isRemote: boolean("isRemote"),
   country: varchar("country", { length: 255 }),
@@ -58,15 +62,87 @@ export const posts = createTable("jobApplication", {
 });
 
 export const users = createTable("user", {
-  id: varchar("id", { length: 255 }).notNull().primaryKey(),
-  username: varchar("name", { length: 255 }),
+  id: varchar("id", { length: 191 }).primaryKey().notNull(),
+  username: varchar("name", { length: 255 }).unique(),
   email: varchar("email", { length: 255 }).notNull().unique(),
-  emailVerified: timestamp("emailVerified", {
-    mode: "date",
-  }).default(sql`CURRENT_TIMESTAMP`),
+  emailVerified: timestamp("emailVerified"),
   avatar: varchar("image", { length: 255 }),
   sub: varchar("sub", { length: 255 }),
   displayName: varchar("displayName", { length: 255 }),
   date: timestamp("date").default(sql`CURRENT_TIMESTAMP`),
   autoArchive: boolean("autoArchive").default(true),
+  // passwordHash: text("passwordHash").notNull(),
 });
+
+export const accounts = createTable(
+  "account",
+  {
+    userId: varchar("userId", { length: 255 })
+      .references(() => users.id)
+      .notNull(),
+    type: varchar("type").notNull(),
+    provider: text("provider").notNull(),
+    providerAccountId: text("providerAccountId").notNull(),
+    refresh_token: text("refresh_token"),
+    access_token: text("access_token"),
+    expires_at: integer("expires_at"),
+    token_type: text("token_type"),
+    scope: text("scope"),
+    id_token: text("id_token"),
+    session_state: text("session_state"),
+  },
+  (account) => ({
+    compoundKey: primaryKey({
+      columns: [account.provider, account.providerAccountId],
+    }),
+  }),
+);
+
+export const sessions = createTable("session", {
+  // id: varchar("id", { length: 191 }).primaryKey(),
+  sessionToken: text("sessionToken").notNull(),
+  userId: varchar("userId", { length: 255 })
+    .references(() => users.id)
+    .notNull(),
+  expires: timestamp("expires", { mode: "date" }).notNull(),
+});
+
+export const verificationTokens = createTable(
+  "verificationToken",
+  {
+    identifier: text("identifier").notNull(),
+    token: text("token").notNull(),
+    expires: timestamp("expires", { mode: "date" }).notNull(),
+  },
+  (vt) => ({
+    compoundKey: primaryKey({ columns: [vt.identifier, vt.token] }),
+  }),
+);
+
+export const jobApplicationRelations = relations(
+  jobApplications,
+  ({ one }) => ({
+    user: one(users, {
+      fields: [jobApplications.owner],
+      references: [users.id],
+    }),
+  }),
+);
+
+export const userRelations = relations(users, ({ many }) => ({
+  jobApplications: many(jobApplications),
+}));
+
+export const accountRelations = relations(accounts, ({ one }) => ({
+  user: one(users, {
+    fields: [accounts.userId],
+    references: [users.id],
+  }),
+}));
+
+export const sessionRelations = relations(sessions, ({ one }) => ({
+  user: one(users, {
+    fields: [sessions.userId],
+    references: [users.id],
+  }),
+}));

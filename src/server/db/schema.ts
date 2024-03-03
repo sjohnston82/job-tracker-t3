@@ -66,7 +66,7 @@ export const users = createTable("user", {
   username: varchar("name", { length: 255 }).unique(),
   email: varchar("email", { length: 255 }).notNull().unique(),
   emailVerified: timestamp("emailVerified"),
-  avatar: varchar("image", { length: 255 }),
+  image: varchar("image", { length: 255 }),
   sub: varchar("sub", { length: 255 }),
   displayName: varchar("displayName", { length: 255 }),
   date: timestamp("date").default(sql`CURRENT_TIMESTAMP`),

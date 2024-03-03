@@ -3,21 +3,25 @@ import React, { useState } from "react";
 import { useAuthStore } from "~/stores/AuthProvider";
 import GrayAvatar from "../../../../../../public/images/gray-avatar-icon.png";
 import Image from "next/image";
+import { useUIStore } from "~/stores/uiStore";
+import UserOptionsDropDown from "./UserOptionsDropDown";
 
 const UserOptions = () => {
   const { data: sessionData } = useSession();
   const { user } = useAuthStore();
 
-  const [open, setOpen] = useState(false);
+  // const [open, setOpen] = useState(false);
 
-  const handleOpen = () => {
-    setOpen(!open);
-  };
+  // const handleOpen = () => {
+  //   setOpen(!open);
+  // };
+
+  const { showUserNavMenu, openUserNavMenu } = useUIStore();
 
   return (
     <div
-      className="group flex w-full cursor-pointer items-center gap-1"
-      onClick={() => handleOpen()}
+      className="group relative flex w-full cursor-pointer items-center gap-1"
+      onClick={() => openUserNavMenu()}
     >
       {user?.image ? (
         <Image
@@ -36,7 +40,7 @@ const UserOptions = () => {
         />
       )}
       <span className="text-sm">&#9660;</span>
-      {open ? <p className="">open</p> : <></>}
+      {showUserNavMenu ? <UserOptionsDropDown /> : <></>}
     </div>
   );
 };

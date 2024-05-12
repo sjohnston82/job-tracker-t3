@@ -12,9 +12,11 @@ const Navbar = () => {
   const { data: sessionData } = useSession();
   const { user } = useAuthStore();
 
+  
   return (
-    <div className="flex h-24 items-center w-full justify-between bg-slate-300 p-4 text-lg">
+    <div className="flex h-24  items-center justify-between bg-[#F8FAFC] p-4 text-lg">
       <Logo />
+
       <AuthWrapper />
     </div>
   );

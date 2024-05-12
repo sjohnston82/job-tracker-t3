@@ -1,3 +1,17 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* html {
+  font-family: var(--font-raleway);
+}
+
+h1 {
+  font-family: var(--font-merriweather);
+} */
+
+@media screen and (max-width: 768px) {
+  .floating-button {
+    display: none;
+  }
+}

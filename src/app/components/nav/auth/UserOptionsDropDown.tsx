@@ -1,6 +1,7 @@
 import { useRef } from "react";
 import { useClickOutside } from "~/lib/hooks/useClickOutside";
 import { useUIStore } from "~/stores/uiStore";
+import { signOut } from "next-auth/react";
 
 const UserOptionsDropDown = () => {
   const { closeUserNavMenu } = useUIStore();
@@ -16,7 +17,7 @@ const UserOptionsDropDown = () => {
     >
       <ul className="">
         <li className="">View Profile</li>
-        <li className="">Log out</li>
+        <li className="cursor-pointer" onClick={() => signOut()}>Log out</li>
       </ul>
     </div>
   );

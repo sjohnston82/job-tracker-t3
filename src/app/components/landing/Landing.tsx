@@ -1,12 +1,14 @@
 import React from "react";
 import Image from "next/image";
-import LandingPic from "../../../public/images/landing.jpg";
+import LandingPic from "../../../../public/images/landing.webp";
+import Features from "./Features";
+import LandingCloser from "./LandingCloser";
 
 const Landing = () => {
   return (
     <>
       <section
-        className="flex h-[calc(100dvh-96px)] flex-col justify-center gap-20  px-12 pt-8"
+        className="flex h-[calc(100dvh-96px)] flex-col justify-center gap-12  px-12 pt-8 pb-6"
         id="main-landing"
       >
         <h1 className="text-center font-basic text-3xl font-bold">
@@ -33,8 +35,8 @@ const Landing = () => {
           </a>
         </button>
       </section>
-
-      <section id="features"></section>
+      <Features />
+      <LandingCloser />
     </>
   );
 };

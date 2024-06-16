@@ -1,7 +1,7 @@
 import { authOptions, getServerAuthSession } from "~/server/auth";
 import { getServerSession } from "next-auth";
-import Landing from "./components/Landing";
-import FloatingButton from "./components/FloatingButton";
+import Landing from "./components/landing/Landing";
+// import FloatingButton from "./components/FloatingButton";
 import NewJobForm from "./components/NewJobForm";
 import Dashboard from "./components/Dashboard";
 
@@ -10,7 +10,7 @@ export default async function Home() {
 
   return (
     <main className="relative flex min-h-screen flex-col scroll-smooth bg-[#F8FAFC] ">
-      {session && <FloatingButton />}
+      {/* {session && <FloatingButton />} */}
       {session ? <Dashboard /> : <Landing />}
     </main>
   );

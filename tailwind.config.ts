@@ -22,6 +22,10 @@ const config = {
         heading: ["var(--font-raleway)"],
         basic: ["var(--font-merriweather)"],
       },
+      colors: {
+        "button-blue": "#8387F3",
+        "light-gray": "#F1ECEC",
+      },
     },
   },
   plugins: [require("tailwindcss-animate")],

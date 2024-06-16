@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import React from 'react'
-import JTLogo from "../../../../public/images/JT.png";
+import JTLogo from "../../../../public/images/JT.webp";
 import Image from 'next/image';
 
 const Logo = () => {

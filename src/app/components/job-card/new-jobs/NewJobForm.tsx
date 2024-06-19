@@ -17,17 +17,17 @@ interface IAddJobApplication {
   owner: string;
   title: string;
   company: string;
-  jobListingURL: string;
+  jobURL: string;
   isRemote: boolean;
   isUSBased: boolean;
   isOutsideUS: boolean;
-  city: string | undefined;
-  state: string | undefined;
-  country: string | undefined;
-  salary: string | undefined;
-  salaryType: string | undefined;
-  jobType: string | undefined;
-  jobSource: string | undefined;
+  city?: string;
+  state?: string;
+  country?: string;
+  salary?: string;
+  salaryType?: string;
+  jobType?: string;
+  jobSource?: string;
 }
 
 const addJobApplicationSchema = z.object({
@@ -42,12 +42,14 @@ const addJobApplicationSchema = z.object({
   city: z
     .string()
     .min(2, { message: "You need at least two characters" })
-    .max(75, { message: "You have exceeded the characters amount." }),
+    .max(75, { message: "You have exceeded the characters amount." })
+    .optional(),
   country: z
     .string()
     .min(2, { message: "You need at least two characters" })
-    .max(75, { message: "You have exceeded the characters amount." }),
-  salary: z.coerce.number().min(1),
+    .max(75, { message: "You have exceeded the characters amount." })
+    .optional(),
+  // salary: z.coerce.number().min(0).optional(),
 });
 
 const NewJobForm = () => {
@@ -58,13 +60,14 @@ const NewJobForm = () => {
   const {
     register,
     handleSubmit,
+    reset,
     formState: { errors },
   } = useForm<IAddJobApplication>({
     resolver: zodResolver(addJobApplicationSchema),
     defaultValues: {
       title: "",
       company: "",
-      jobListingURL: "",
+      jobURL: "",
       salary: "",
       salaryType: "",
       jobType: "",
@@ -75,6 +78,7 @@ const NewJobForm = () => {
   const createNewJobApp =
     api.jobApplicationsRouter.createJobApplication.useMutation({
       onSuccess: () => console.log("JobApplication created!"),
+      onError: (err) => console.log(err),
     });
 
   const showingAddMoreInfo = (event: React.MouseEvent<HTMLButtonElement>) => {
@@ -83,42 +87,65 @@ const NewJobForm = () => {
   };
 
   const onSubmit = (data: IAddJobApplication) => {
+    console.log("Form submitted:", data);
+
+    if (!user?.id) {
+      console.error(
+        "User ID is undefined. Please make sure the user is authenticated.",
+      );
+      console.log("no user");
+      return;
+    }
+
     const mutationData = {
       owner: user?.id,
       title: data.title,
       company: data.company,
-      jobListingURL: data.jobListingURL,
-      isRemote: locationRadioSelection === "remote" ? "true" : "false",
-      isUSBased: locationRadioSelection === "usbased" ? "true" : "false",
-      isOutsideUS: locationRadioSelection === "outsideus" ? "true" : "false",
+      jobURL: data.jobURL,
+      isRemote: locationRadioSelection === "remote",
+      isUSBased: locationRadioSelection === "usbased",
+      isOutsideUS: locationRadioSelection === "outsideus",
+      country: locationRadioSelection === "outsideus" ? data.country : "",
+      state: locationRadioSelection === "usbased" ? data.state : "",
+      city: locationRadioSelection !== "remote" ? data.city : "",
+      dateApplied: new Date(Date.now()),
+      jobSource: data.jobSource ?? "",
+      jobType: data.jobType ?? "",
+      salary: data.salary ?? "",
+      salaryType: data.salaryType ?? "",
 
-      // keep adding as necessary
+      // TODO:  add functonality for resumes, cover letters and projects
     };
+
+    createNewJobApp.mutate(mutationData);
+
+    console.log("Job created!", mutationData);
+    reset();
   };
 
   return (
-    <form className="flex flex-col gap-4">
+    <form className="flex flex-col gap-4" onSubmit={handleSubmit(onSubmit)}>
       <input
         type="text"
         className="h-10 w-full rounded-full border-2 border-black text-center shadow-lg outline-none placeholder:text-center placeholder:font-semibold placeholder:text-slate-800"
         placeholder="Job Title"
         {...register("title")}
       />
-
+      {errors.title && <p>{errors.title.message}</p>}
       <input
         type="text"
         className="h-10 w-full rounded-full border-2 border-black shadow-lg outline-none placeholder:text-center placeholder:font-semibold placeholder:text-slate-800"
         placeholder="Company"
         {...register("company")}
       />
-
+      {errors.company && <p>{errors.company.message}</p>}
       <input
         type="text"
         className="h-10 w-full rounded-full border-2 border-black shadow-lg outline-none placeholder:text-center placeholder:font-semibold placeholder:text-slate-800"
         placeholder="Job Listing URL"
-        {...register("jobListingURL")}
+        {...register("jobURL")}
       />
-
+      {errors.jobURL && <p>{errors.jobURL.message}</p>}
       <p className="text-center font-bold underline">Location</p>
       <LocationRadioGroup />
       {locationRadioSelection === "usbased" ? (
@@ -138,6 +165,7 @@ const NewJobForm = () => {
               placeholder="Salary"
               {...register("salary")}
             />
+            {errors.salary && <p>{errors.salary.message}</p>}
             <select
               className="h-10 w-full rounded-full border-2 border-black text-center shadow-lg outline-none placeholder:text-center placeholder:font-semibold placeholder:text-slate-800"
               {...register("salaryType")}

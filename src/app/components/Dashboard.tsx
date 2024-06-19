@@ -1,6 +1,8 @@
 import React from 'react'
 import Searchbar from './Searchbar'
 import DashboardButtonContainer from './dashobard-ui/DashboardButtonContainer'
+import JobCardContainer from './job-card/JobCardContainer'
+
 
 const Dashboard = () => {
   return (
@@ -9,6 +11,7 @@ const Dashboard = () => {
       <Searchbar />
       </div>
       <div className=""><DashboardButtonContainer /></div>
+      <JobCardContainer />
     </div>
   )
 }

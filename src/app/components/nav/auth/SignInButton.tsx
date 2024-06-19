@@ -3,7 +3,7 @@ import React from "react";
 
 const SignInButton = () => {
   const signInWithClick = async () => {
-    console.log("clicked");
+
     await signIn();
   };
   return (

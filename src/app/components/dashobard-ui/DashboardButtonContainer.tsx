@@ -1,14 +1,12 @@
 import React from "react";
-import { Button } from "../ui/button";
 
 import ActiveArchivedToggle from "./ActiveArchivedToggle";
+import AddNewJobWrapper from "../job-card/new-jobs/AddNewJobWrapper";
 
 const DashboardButtonContainer = () => {
   return (
-    <div className="flex items-center justify-between px-6 pt-8">
-      <Button variant={"normal"} size="lg">
-        + Add New
-      </Button>
+    <div className="flex items-center justify-between px-6 py-8">
+      <AddNewJobWrapper />
       <ActiveArchivedToggle />
     </div>
   );

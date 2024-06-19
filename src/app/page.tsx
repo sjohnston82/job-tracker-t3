@@ -2,7 +2,7 @@ import { authOptions, getServerAuthSession } from "~/server/auth";
 import { getServerSession } from "next-auth";
 import Landing from "./components/landing/Landing";
 // import FloatingButton from "./components/FloatingButton";
-import NewJobForm from "./components/NewJobForm";
+import NewJobForm from "./components/job-card/new-jobs/NewJobForm";
 import Dashboard from "./components/Dashboard";
 
 export default async function Home() {

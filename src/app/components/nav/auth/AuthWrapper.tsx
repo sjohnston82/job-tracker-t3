@@ -1,6 +1,6 @@
 import { useSession } from "next-auth/react";
 import React from "react";
-import { useAuthStore } from "~/stores/AuthProvider";
+import { useAuthStore } from "~/stores/authStore";
 import SignInButton from "./SignInButton";
 import UserOptions from "./UserOptions";
 

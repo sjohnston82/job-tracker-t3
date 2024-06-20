@@ -11,7 +11,7 @@ import { cn } from "~/lib/utils";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { api } from "~/helpers/api";
-import { useAuthStore } from "~/stores/AuthProvider";
+import { useAuthStore } from "~/stores/authStore";
 
 interface IAddJobApplication {
   owner: string;

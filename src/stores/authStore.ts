@@ -1,4 +1,4 @@
-import { create } from 'zustand';
+import { create } from "zustand";
 
 export type User =
   | {
@@ -22,9 +22,9 @@ interface IAuthStore {
   setUser: (user: User) => void;
 }
 
-// export const useAuthStore = create<IAuthStore>((set) => ({
-//   authenticated: false,
-//   user: {},
-//   setAuthenticated: (val) => set((state) => ({ authenticated: val })),
-//   setUser: (user) => set({ user }),
-// }))
+export const useAuthStore = create<IAuthStore>((set) => ({
+  authenticated: false,
+  user: null,
+  setAuthenticated: (val) => set(({ authenticated: val })),
+  setUser: (user) => set({ user }),
+}));

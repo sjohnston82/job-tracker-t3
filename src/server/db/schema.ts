@@ -57,6 +57,7 @@ export const jobApplications = createTable("jobApplication", {
   jobType: varchar("jobType", { length: 255 }),
   isRemote: boolean("isRemote"),
   isUSBased: boolean("isUSBased"),
+  isOutsideUS: boolean("isOutsideUS"),
   country: varchar("country", { length: 255 }),
   city: varchar("city", { length: 255 }),
   state: varchar("state", { length: 255 }),

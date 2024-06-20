@@ -1,6 +1,6 @@
 import { useSession } from "next-auth/react";
 import React, { useState } from "react";
-import { useAuthStore } from "~/stores/AuthProvider";
+import { useAuthStore } from "~/stores/authStore";
 import GrayAvatar from "../../../../../public/images/gray-avatar-icon.webp";
 import Image from "next/image";
 import { useUIStore } from "~/stores/uiStore";

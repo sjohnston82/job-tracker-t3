@@ -11,6 +11,8 @@ interface IJobInfoStore {
   setCity: (value: string) => void;
   setCountry: (value: string) => void;
   setState: (value: string) => void;
+  showingActive: boolean;
+  toggleShowingActive: () => void;
 }
 
 export const useJobInfoStore = create<IJobInfoStore>((set) => ({
@@ -22,4 +24,7 @@ export const useJobInfoStore = create<IJobInfoStore>((set) => ({
   setCity: (value) => set({ city: value }),
   setState: (value) => set({ state: value }),
   setCountry: (value) => set({ country: value }),
+  showingActive: true,
+  toggleShowingActive: () =>
+    set((state) => ({ showingActive: !state.showingActive })),
 }));

@@ -3,7 +3,7 @@
 import React from "react";
 import { signIn, signOut, useSession } from "next-auth/react";
 
-import { useAuthStore } from "~/stores/AuthProvider";
+import { useAuthStore } from "~/stores/authStore";
 import Logo from "./Logo";
 import AuthWrapper from "./auth/AuthWrapper";
 

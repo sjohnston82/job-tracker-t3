@@ -1,9 +1,10 @@
-import React from "react";
+"use client";
+
+import React, { useState } from "react";
 import { Button } from "../../ui/button";
 import {
   Dialog,
   DialogContent,
-  DialogDescription,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
@@ -11,8 +12,9 @@ import {
 import NewJobForm from "./NewJobForm";
 
 const AddNewJobWrapper = () => {
+  const [open, setOpen] = useState(false);
   return (
-    <Dialog>
+    <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         <Button variant={"normal"} size="lg">
           + Add New
@@ -22,7 +24,7 @@ const AddNewJobWrapper = () => {
         <DialogHeader>
           <DialogTitle>Add New Application</DialogTitle>
         </DialogHeader>
-        <NewJobForm />
+        <NewJobForm setOpen={setOpen} />
       </DialogContent>
     </Dialog>
   );

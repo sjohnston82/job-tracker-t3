@@ -1,7 +1,7 @@
 import React from 'react'
 import Searchbar from './Searchbar'
 import DashboardButtonContainer from './dashobard-ui/DashboardButtonContainer'
-import JobCardContainer from './job-card/JobCardContainer'
+import JobCardContainer from './job-card/JobCardWrapper'
 
 
 const Dashboard = () => {

@@ -1,17 +1,20 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { type Dispatch, type SetStateAction, useState } from "react";
 import { useForm } from "react-hook-form";
 import LocationRadioGroup from "./LocationRadioGroup";
 import { useJobInfoStore } from "~/stores/jobInfoStore";
 import USBasedLocationSelection from "./USBasedLocationSelection";
 import OutsideUSLocationSelection from "./OutsideUSLocationSelection";
-import { Button } from "../../ui/button";
 import { cn } from "~/lib/utils";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { api } from "~/helpers/api";
 import { useAuthStore } from "~/stores/authStore";
+
+interface INewJobFormProps {
+  setOpen: Dispatch<SetStateAction<boolean>>
+}
 
 interface IAddJobApplication {
   owner: string;
@@ -49,10 +52,9 @@ const addJobApplicationSchema = z.object({
     .min(2, { message: "You need at least two characters" })
     .max(75, { message: "You have exceeded the characters amount." })
     .optional(),
-  // salary: z.coerce.number().min(0).optional(),
 });
 
-const NewJobForm = () => {
+const NewJobForm = ({ setOpen }: INewJobFormProps) => {
   const [addingMoreInfo, setAddingMoreInfo] = useState(false);
   const { locationRadioSelection } = useJobInfoStore();
   const { user } = useAuthStore();
@@ -75,9 +77,11 @@ const NewJobForm = () => {
     },
   });
 
+  const utils = api.useUtils();
+
   const createNewJobApp =
     api.jobApplicationsRouter.createJobApplication.useMutation({
-      onSuccess: () => console.log("JobApplication created!"),
+      onSuccess: () => utils.invalidate(),
       onError: (err) => console.log(err),
     });
 
@@ -87,7 +91,7 @@ const NewJobForm = () => {
   };
 
   const onSubmit = (data: IAddJobApplication) => {
-    console.log("Form submitted:", data);
+    
 
     if (!user?.id) {
       console.error(
@@ -119,8 +123,9 @@ const NewJobForm = () => {
 
     createNewJobApp.mutate(mutationData);
 
-    console.log("Job created!", mutationData);
+    
     reset();
+    setOpen(false)
   };
 
   return (

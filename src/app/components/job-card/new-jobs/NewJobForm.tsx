@@ -13,7 +13,7 @@ import { api } from "~/helpers/api";
 import { useAuthStore } from "~/stores/authStore";
 
 interface INewJobFormProps {
-  setOpen: Dispatch<SetStateAction<boolean>>
+  setOpen: Dispatch<SetStateAction<boolean>>;
 }
 
 interface IAddJobApplication {
@@ -42,21 +42,30 @@ const addJobApplicationSchema = z.object({
     .string()
     .min(2, { message: "You need at least two characters" })
     .max(75, { message: "You have exceeded the characters amount." }),
-  city: z
-    .string()
-    .min(2, { message: "You need at least two characters" })
-    .max(75, { message: "You have exceeded the characters amount." })
-    .optional(),
-  country: z
-    .string()
-    .min(2, { message: "You need at least two characters" })
-    .max(75, { message: "You have exceeded the characters amount." })
-    .optional(),
+  // city: z
+  //   .string()
+  //   .min(2, { message: "You need at least two characters" })
+  //   .max(75, { message: "You have exceeded the characters amount." })
+  //   .optional(),
+  // country: z
+  //   .string()
+  //   .min(2, { message: "You need at least two characters" })
+  //   .max(75, { message: "You have exceeded the characters amount." })
+  //   .optional(),
 });
 
 const NewJobForm = ({ setOpen }: INewJobFormProps) => {
   const [addingMoreInfo, setAddingMoreInfo] = useState(false);
-  const { locationRadioSelection } = useJobInfoStore();
+  const {
+    locationRadioSelection,
+    city,
+    state,
+    country,
+    setCity,
+    setState,
+    setCountry,
+    setLocationRadioSelection
+  } = useJobInfoStore();
   const { user } = useAuthStore();
 
   const {
@@ -91,8 +100,6 @@ const NewJobForm = ({ setOpen }: INewJobFormProps) => {
   };
 
   const onSubmit = (data: IAddJobApplication) => {
-    
-
     if (!user?.id) {
       console.error(
         "User ID is undefined. Please make sure the user is authenticated.",
@@ -109,9 +116,9 @@ const NewJobForm = ({ setOpen }: INewJobFormProps) => {
       isRemote: locationRadioSelection === "remote",
       isUSBased: locationRadioSelection === "usbased",
       isOutsideUS: locationRadioSelection === "outsideus",
-      country: locationRadioSelection === "outsideus" ? data.country : "",
-      state: locationRadioSelection === "usbased" ? data.state : "",
-      city: locationRadioSelection !== "remote" ? data.city : "",
+      country: country ?? "",
+      state: state ?? "",
+      city: city ?? "",
       dateApplied: new Date(Date.now()),
       jobSource: data.jobSource ?? "",
       jobType: data.jobType ?? "",
@@ -121,11 +128,16 @@ const NewJobForm = ({ setOpen }: INewJobFormProps) => {
       // TODO:  add functonality for resumes, cover letters and projects
     };
 
+    console.log("Mutation Data: ", mutationData);
+
     createNewJobApp.mutate(mutationData);
 
-    
     reset();
-    setOpen(false)
+    setCity("");
+    setState("");
+    setCountry("");
+    setLocationRadioSelection("remote")
+    setOpen(false);
   };
 
   return (

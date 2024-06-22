@@ -12,7 +12,7 @@ const JobCardContainer = () => {
   const { showingActive } = useJobInfoStore();
 
   return (
-    <div className="w-full flex flex-wrap space-x-4 space-y-4">
+    <div className="w-full flex flex-wrap justify-between gap-6 px-2">
       {showingActive
         ? activeJobs?.map((job) => <JobCard key={job.id} job={job} />)
         : archivedJobs?.map((job) => <JobCard key={job.id} job={job} />)}

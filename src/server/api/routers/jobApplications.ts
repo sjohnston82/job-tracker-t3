@@ -6,6 +6,7 @@ import { createTRPCRouter, protectedProcedure } from "~/server/api/trpc";
 import { db } from "~/server/db";
 import { jobApplications, users } from "~/server/db/schema";
 import { formatDate } from "~/helpers/date-functions";
+import { capitalizeFirstLetter } from "~/helpers/string-functions";
 
 type JobApplication = typeof jobApplications.$inferInsert;
 
@@ -91,17 +92,24 @@ export const jobApplicationsRouter = createTRPCRouter({
       const newID = uuid();
 
       const formattedDate = formatDate(dateApplied);
+      const transformedTitle = capitalizeFirstLetter(title);
+      const transformedCompany = capitalizeFirstLetter(company);
+      const transformedCountry = country
+        ? capitalizeFirstLetter(country)
+        : null;
+      const transformedState = state ? capitalizeFirstLetter(state) : null;
+      const transformedCity = city ? capitalizeFirstLetter(city) : null;
 
       const newJobApp: JobApplication = {
         id: newID,
         owner,
-        title,
-        company,
+        title: transformedTitle,
+        company: transformedCompany,
         isRemote,
         isUSBased,
-        country,
-        city,
-        state,
+        country: transformedCountry,
+        city: transformedCity,
+        state: transformedState,
         jobURL,
         dateApplied,
         dateAppliedReadable: formattedDate,

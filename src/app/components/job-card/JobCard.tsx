@@ -10,10 +10,11 @@ import {
 import { Button } from "../ui/button";
 import Image from "next/image";
 import MapMarker from "../../../../public/images/map-marker.svg";
-import { capitalizeFirstLetter } from "~/helpers/string-functions";
+import { transformStageOfApplication } from "~/helpers/string-functions";
 import Link from "next/link";
 import { type Url } from "next/dist/shared/lib/router/router";
 import JobLinkButton from "./JobLinkButton";
+import JobInfo from "./JobInfo";
 // import JobInfo from "./JobInfo";
 
 interface IJobCardProps {
@@ -21,24 +22,7 @@ interface IJobCardProps {
 }
 
 const JobCard: React.FC<IJobCardProps> = ({ job }) => {
-  const transformStageOfApplication = (stageOfApplication: number | null) => {
-    switch (stageOfApplication) {
-      case 0:
-        return "Application Submitted";
-      case 1:
-        return "Recruiter Phone Interview";
-      case 2:
-        return "Technical Phone Interview";
-      case 3:
-        return "Onsite/Online Interview";
-      case 4:
-        return "Take-home Evaluation";
-      case 5:
-        return "Offer Received!";
-      default:
-        return "Application Submitted";
-    }
-  };
+  
 
 
   
@@ -80,9 +64,9 @@ const JobCard: React.FC<IJobCardProps> = ({ job }) => {
             </DialogTrigger>
             <DialogContent className="max-h-screen max-w-[300px] overflow-y-scroll rounded-xl">
               <DialogHeader>
-                <DialogTitle>{job.title}</DialogTitle>
+                <DialogTitle>Showing more info for...</DialogTitle>
               </DialogHeader>
-              {/* <JobInfo job={job} /> */}
+              <JobInfo job={job} />
             </DialogContent>
           </Dialog>
         <JobLinkButton jobURL={job.jobURL} />

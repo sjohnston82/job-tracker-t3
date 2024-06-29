@@ -219,7 +219,7 @@ const NewJobForm = ({ setOpen }: INewJobFormProps) => {
               <option value="dice">Dice</option>
               <option value="wellfound">Wellfound</option>
               <option value="blind">Blind</option>
-              <option value="companyCareerPage">Company Career Page</option>
+              <option value="careerPage">Career Page</option>
               <option value="referral">Personal Referral</option>
             </select>
           </div>

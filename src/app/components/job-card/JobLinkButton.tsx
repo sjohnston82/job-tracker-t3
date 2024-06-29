@@ -9,7 +9,7 @@ const JobLinkButton: React.FC<IJobLinkButtonProps> = ({ jobURL }) => {
   const jobURLString =
     typeof jobURL === "string" ? jobURL : new URL(String(jobURL)).toString();
 
-  // Ensure the jobURL has the correct protocol
+  
   const formattedJobURL =
     jobURLString.startsWith("http://") || jobURLString.startsWith("https://")
       ? jobURLString

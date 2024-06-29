@@ -99,6 +99,14 @@ export const jobApplicationsRouter = createTRPCRouter({
         : null;
       const transformedState = state ? capitalizeFirstLetter(state) : null;
       const transformedCity = city ? capitalizeFirstLetter(city) : null;
+      const transformedJobType = jobType
+        ? capitalizeFirstLetter(jobType)
+        : null;
+      const transformedJobSource = jobSource
+        ? capitalizeFirstLetter(jobSource)
+        : null;
+
+      const newJobSource = "Career Page";
 
       const newJobApp: JobApplication = {
         id: newID,
@@ -116,10 +124,15 @@ export const jobApplicationsRouter = createTRPCRouter({
         stageOfApplication: 0,
         salary,
         salaryType,
-        jobType,
-        jobSource,
+        jobType:
+          jobType === "fullTime"
+            ? "Full-Time"
+            : jobType === "partTime"
+              ? "Part-Time"
+              : transformedJobType,
+        jobSource:
+          jobSource === "careerPage" ? newJobSource : transformedJobSource,
       };
-
 
       const createJobApp = async (job: JobApplication) => {
         return db.insert(jobApplications).values(job);

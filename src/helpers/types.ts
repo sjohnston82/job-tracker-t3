@@ -1,10 +1,12 @@
+import { type Url } from "next/dist/shared/lib/router/router";
+
 export type JobApplication = {
   id: string;
   title: string | null;
   dateApplied: Date;
   dateAppliedReadable: string | null;
   daysSinceInitialSubmission: number | null;
-  jobURL: string | null;
+  jobURL: Url;
   jobSource: string | null;
   salary: string | null;
   salaryType: string | null;

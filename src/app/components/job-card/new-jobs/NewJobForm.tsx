@@ -42,16 +42,22 @@ const addJobApplicationSchema = z.object({
     .string()
     .min(2, { message: "You need at least two characters" })
     .max(75, { message: "You have exceeded the characters amount." }),
-  // city: z
-  //   .string()
-  //   .min(2, { message: "You need at least two characters" })
-  //   .max(75, { message: "You have exceeded the characters amount." })
-  //   .optional(),
-  // country: z
-  //   .string()
-  //   .min(2, { message: "You need at least two characters" })
-  //   .max(75, { message: "You have exceeded the characters amount." })
-  //   .optional(),
+  salary: z.string().optional(),
+  jobURL: z.string().url(),
+  city: z
+    .string()
+    .min(2, { message: "You need at least two characters" })
+    .max(75, { message: "You have exceeded the characters amount." })
+    .optional(),
+  country: z
+    .string()
+    .min(2, { message: "You need at least two characters" })
+    .max(75, { message: "You have exceeded the characters amount." })
+    .optional(),
+  state: z.string().optional(),
+  salaryType: z.string().optional(),
+  jobType: z.string().optional(),
+  jobSource: z.string().optional(),
 });
 
 const NewJobForm = ({ setOpen }: INewJobFormProps) => {
@@ -64,7 +70,7 @@ const NewJobForm = ({ setOpen }: INewJobFormProps) => {
     setCity,
     setState,
     setCountry,
-    setLocationRadioSelection
+    setLocationRadioSelection,
   } = useJobInfoStore();
   const { user } = useAuthStore();
 
@@ -74,7 +80,7 @@ const NewJobForm = ({ setOpen }: INewJobFormProps) => {
     reset,
     formState: { errors },
   } = useForm<IAddJobApplication>({
-    resolver: zodResolver(addJobApplicationSchema),
+    // resolver: zodResolver(addJobApplicationSchema),
     defaultValues: {
       title: "",
       company: "",
@@ -136,7 +142,7 @@ const NewJobForm = ({ setOpen }: INewJobFormProps) => {
     setCity("");
     setState("");
     setCountry("");
-    setLocationRadioSelection("remote")
+    setLocationRadioSelection("remote");
     setOpen(false);
   };
 
@@ -151,14 +157,14 @@ const NewJobForm = ({ setOpen }: INewJobFormProps) => {
       {errors.title && <p>{errors.title.message}</p>}
       <input
         type="text"
-        className="h-10 w-full rounded-full border-2 border-black shadow-lg outline-none placeholder:text-center placeholder:font-semibold placeholder:text-slate-800"
+        className="h-10 w-full rounded-full border-2 border-black text-center shadow-lg outline-none placeholder:text-center placeholder:font-semibold placeholder:text-slate-800"
         placeholder="Company"
         {...register("company")}
       />
       {errors.company && <p>{errors.company.message}</p>}
       <input
         type="text"
-        className="h-10 w-full rounded-full border-2 border-black shadow-lg outline-none placeholder:text-center placeholder:font-semibold placeholder:text-slate-800"
+        className="h-10 w-full rounded-full border-2 border-black text-center shadow-lg outline-none placeholder:text-center placeholder:font-semibold placeholder:text-slate-800"
         placeholder="Job Listing URL"
         {...register("jobURL")}
       />
@@ -177,7 +183,7 @@ const NewJobForm = ({ setOpen }: INewJobFormProps) => {
         <div className="flex flex-col gap-2">
           <div className="flex gap-2">
             <input
-              type="text"
+              type="number"
               className="h-10 w-full rounded-full border-2 border-black text-center shadow-lg outline-none placeholder:text-center placeholder:font-semibold placeholder:text-slate-800"
               placeholder="Salary"
               {...register("salary")}
@@ -187,9 +193,7 @@ const NewJobForm = ({ setOpen }: INewJobFormProps) => {
               className="h-10 w-full rounded-full border-2 border-black text-center shadow-lg outline-none placeholder:text-center placeholder:font-semibold placeholder:text-slate-800"
               {...register("salaryType")}
             >
-              <option disabled value="">
-                Type
-              </option>
+              <option value="">Type</option>
               <option value="yearly">Yearly</option>
               <option value="hourly">Hourly</option>
             </select>
@@ -199,9 +203,7 @@ const NewJobForm = ({ setOpen }: INewJobFormProps) => {
               className="h-10 w-full rounded-full border-2 border-black text-center shadow-lg outline-none placeholder:text-center placeholder:font-semibold placeholder:text-slate-800"
               {...register("jobType")}
             >
-              <option disabled value="">
-                Job Type
-              </option>
+              <option value="">Job Type</option>
               <option value="fullTime">Full-Time</option>
               <option value="partTime">Part-Time</option>
               <option value="contract">Contract</option>
@@ -211,9 +213,7 @@ const NewJobForm = ({ setOpen }: INewJobFormProps) => {
               className="h-10 w-full rounded-full border-2 border-black text-center shadow-lg outline-none placeholder:text-center placeholder:font-semibold placeholder:text-slate-800"
               {...register("jobSource")}
             >
-              <option disabled value="">
-                Job Source
-              </option>
+              <option value="">Job Source</option>
               <option value="linkedin">LinkedIn</option>
               <option value="indeed">Indeed</option>
               <option value="dice">Dice</option>
@@ -235,7 +235,7 @@ const NewJobForm = ({ setOpen }: INewJobFormProps) => {
           )}
           onClick={showingAddMoreInfo}
         >
-          Add More Info<span className="rotate-90">&#x25BE;</span>{" "}
+          Add More Info<span className="rotate-90">&#x25BE;</span>
         </button>
         <button
           type="submit"

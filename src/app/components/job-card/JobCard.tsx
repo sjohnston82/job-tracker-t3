@@ -11,6 +11,9 @@ import { Button } from "../ui/button";
 import Image from "next/image";
 import MapMarker from "../../../../public/images/map-marker.svg";
 import { capitalizeFirstLetter } from "~/helpers/string-functions";
+import Link from "next/link";
+import { type Url } from "next/dist/shared/lib/router/router";
+import JobLinkButton from "./JobLinkButton";
 // import JobInfo from "./JobInfo";
 
 interface IJobCardProps {
@@ -29,7 +32,7 @@ const JobCard: React.FC<IJobCardProps> = ({ job }) => {
       case 3:
         return "Onsite/Online Interview";
       case 4:
-        return "Take-home Evaluataion";
+        return "Take-home Evaluation";
       case 5:
         return "Offer Received!";
       default:
@@ -37,26 +40,11 @@ const JobCard: React.FC<IJobCardProps> = ({ job }) => {
     }
   };
 
-//  const capitalizeFirstLetter = (input: string) => {
-//    const splitWords = input.split(" ");
 
-//    const capitalizedWords: string[] = [];
-
-//    splitWords.forEach((word) => {
-//      word.split("");
-//      const combined = word[0]?.toUpperCase() + word.substring(1);
-
-//      capitalizedWords.push(combined);
-//    });
   
 
-//    return capitalizedWords;
-//  };
-
-  console.log(capitalizeFirstLetter("the home depot"));
-
   return (
-    <div className="flex  min-h-[200px] min-w-[240px] max-w-[240px] flex-col flex-wrap items-center gap-2 rounded-xl border border-black shadow-lg shadow-black">
+    <div className="flex  min-h-[200px] min-w-[280px] max-w-[240px] flex-col flex-wrap items-center gap-2 rounded-xl border border-black shadow-lg shadow-black">
       <div className="flex flex-col items-center gap-2 p-2">
         <p className="flex h-10 items-center text-center text-lg font-bold">
           {job.title}
@@ -83,7 +71,7 @@ const JobCard: React.FC<IJobCardProps> = ({ job }) => {
         <p className="">
           {transformStageOfApplication(job.stageOfApplication)}
         </p>
-        <div className="">
+        <div className="flex justify-between gap-3">
           <Dialog>
             <DialogTrigger asChild>
               <Button variant={"normal"} size="sm">
@@ -97,6 +85,7 @@ const JobCard: React.FC<IJobCardProps> = ({ job }) => {
               {/* <JobInfo job={job} /> */}
             </DialogContent>
           </Dialog>
+        <JobLinkButton jobURL={job.jobURL} />
         </div>
       </div>
     </div>

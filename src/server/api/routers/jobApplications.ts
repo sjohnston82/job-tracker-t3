@@ -120,6 +120,7 @@ export const jobApplicationsRouter = createTRPCRouter({
         jobSource,
       };
 
+
       const createJobApp = async (job: JobApplication) => {
         return db.insert(jobApplications).values(job);
       };

@@ -11,21 +11,11 @@ import { Button } from "../ui/button";
 import Image from "next/image";
 import MapMarker from "../../../../public/images/map-marker.svg";
 import { transformStageOfApplication } from "~/helpers/string-functions";
-import Link from "next/link";
-import { type Url } from "next/dist/shared/lib/router/router";
 import JobLinkButton from "./JobLinkButton";
 import JobInfo from "./JobInfo";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuGroup,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuSubContent,
-  DropdownMenuTrigger,
-} from "../ui/dropdown-menu";
-import { EllipsisVertical, Pencil, Trash2, ArrowBigUp } from "lucide-react";
+import JobOptionsDropDown from "./JobOptionsDropDown";
+import { useJobInfoStore } from "~/stores/jobInfoStore";
+import EditingJobInfo from "./EditingJobInfo";
 // import JobInfo from "./JobInfo";
 
 interface IJobCardProps {
@@ -33,6 +23,9 @@ interface IJobCardProps {
 }
 
 const JobCard: React.FC<IJobCardProps> = ({ job }) => {
+
+  const { isEditing, stopIsEditing, startIsEditing } = useJobInfoStore();
+
   return (
     <div className="flex  min-h-[200px] min-w-[280px] max-w-[240px] flex-col flex-wrap items-center gap-2 rounded-xl border border-black shadow-lg shadow-black">
       <div className="flex flex-col items-center gap-2 p-2">
@@ -62,7 +55,7 @@ const JobCard: React.FC<IJobCardProps> = ({ job }) => {
           {transformStageOfApplication(job.stageOfApplication)}
         </p>
         <div className="relative flex justify-between gap-3">
-          <Dialog>
+          <Dialog onOpenChange={stopIsEditing}>
             <DialogTrigger asChild>
               <Button variant={"normal"} size="sm">
                 More Info
@@ -70,41 +63,12 @@ const JobCard: React.FC<IJobCardProps> = ({ job }) => {
             </DialogTrigger>
             <DialogContent className="max-h-screen  max-w-[300px] overflow-y-scroll rounded-xl">
               <DialogHeader>
-                <DialogTitle></DialogTitle>
+                <DialogTitle className="">{isEditing && "Editing Job App Info"}</DialogTitle>
               </DialogHeader>
-              <div className=" absolute right-10 top-3">
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    {/* <Image src={EllipsisVerticalIcon} width={20} height={20} alt="Ellipsis" /> */}
-                    <EllipsisVertical size={20} />
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent className="w-56">
-                    <DropdownMenuLabel>{`Options for ${job.title}`}</DropdownMenuLabel>
-                    <DropdownMenuSeparator />
-                    <DropdownMenuGroup>
-                      <DropdownMenuItem>
-                        <Pencil className="mr-2 h-4 w-4 " />
-                        <span className="cursor-pointer hover:font-bold hover:duration-100">
-                          Edit Job Info
-                        </span>
-                      </DropdownMenuItem>
-                      <DropdownMenuItem>
-                        <Trash2 className="mr-2 h-4 w-4" />
-                        <span className="cursor-pointer hover:font-bold hover:duration-100">
-                          Delete Job App
-                        </span>
-                      </DropdownMenuItem>
-                      <DropdownMenuItem>
-                        <ArrowBigUp className="mr-2 h-4 w-4" fill="green" />
-                        <span className="cursor-pointer hover:font-bold hover:duration-100">
-                          Upgrade App Status
-                        </span>
-                      </DropdownMenuItem>
-                    </DropdownMenuGroup>
-                  </DropdownMenuContent>
-                </DropdownMenu>
+              <div className=" absolute right-10 top-[14px]">
+                <JobOptionsDropDown job={job} />
               </div>
-              <JobInfo job={job} />
+              {isEditing ? <EditingJobInfo job={job} /> : <JobInfo job={job} />}
             </DialogContent>
           </Dialog>
           <JobLinkButton jobURL={job.jobURL} />

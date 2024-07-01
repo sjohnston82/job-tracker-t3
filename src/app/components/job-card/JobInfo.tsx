@@ -1,12 +1,7 @@
 import React from "react";
 import { type JobApplication } from "~/helpers/types";
 import { transformStageOfApplication } from "~/helpers/string-functions";
-import JobInfoButtonContainer from "./JobInfoButtonContainer";
-import { DropdownMenu, DropdownMenuTrigger } from "../ui/dropdown-menu";
-import { Button } from "../ui/button";
-import Image from "next/image";
-import { EllipsisVertical, EllipsisVerticalIcon } from "lucide-react";
-import { type LucideIcon } from "lucide-react";
+
 
 interface IJobCardProps {
   job: JobApplication;
@@ -102,7 +97,6 @@ const JobInfo = ({ job }: IJobCardProps) => {
           </p>
         </div>
       </div>
-      <JobInfoButtonContainer job={job} />
     </div>
   );
 };

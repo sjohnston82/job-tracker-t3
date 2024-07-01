@@ -80,7 +80,7 @@ const NewJobForm = ({ setOpen }: INewJobFormProps) => {
     reset,
     formState: { errors },
   } = useForm<IAddJobApplication>({
-    // resolver: zodResolver(addJobApplicationSchema),
+    resolver: zodResolver(addJobApplicationSchema),
     defaultValues: {
       title: "",
       company: "",

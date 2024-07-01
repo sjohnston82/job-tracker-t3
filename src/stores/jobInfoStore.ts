@@ -13,6 +13,9 @@ interface IJobInfoStore {
   setState: (value: string) => void;
   showingActive: boolean;
   toggleShowingActive: () => void;
+  isEditing: boolean;
+  stopIsEditing: () => void;
+  startIsEditing: () => void;
 }
 
 export const useJobInfoStore = create<IJobInfoStore>((set) => ({
@@ -27,4 +30,7 @@ export const useJobInfoStore = create<IJobInfoStore>((set) => ({
   showingActive: true,
   toggleShowingActive: () =>
     set((state) => ({ showingActive: !state.showingActive })),
+  isEditing: false,
+  stopIsEditing: () => set((state) => ({ isEditing: false })),
+  startIsEditing: () => set((state) => ({ isEditing: true })),
 }));

@@ -1,6 +1,12 @@
 import React from "react";
 import { type JobApplication } from "~/helpers/types";
 import { transformStageOfApplication } from "~/helpers/string-functions";
+import JobInfoButtonContainer from "./JobInfoButtonContainer";
+import { DropdownMenu, DropdownMenuTrigger } from "../ui/dropdown-menu";
+import { Button } from "../ui/button";
+import Image from "next/image";
+import { EllipsisVertical, EllipsisVerticalIcon } from "lucide-react";
+import { type LucideIcon } from "lucide-react";
 
 interface IJobCardProps {
   job: JobApplication;
@@ -18,7 +24,9 @@ const JobInfo = ({ job }: IJobCardProps) => {
       : `https://${jobURLString}`;
 
   return (
-    <div className="flex w-full flex-col items-center justify-center gap-2">
+    <div className="relative flex w-full flex-col items-center justify-center gap-2">
+     
+
       <div className="w-full flex-col items-center justify-center gap-2 text-center">
         <p className="font-semibold underline ">Title: </p>
         <p className="w-full bg-light-gray">{job.title}</p>
@@ -50,7 +58,7 @@ const JobInfo = ({ job }: IJobCardProps) => {
       <div className="w-full flex-col items-center justify-center gap-2 text-center">
         <p className="font-semibold underline">Salary: </p>
         <div className="flex">
-          {job.Salary ? (
+          {job.salary ? (
             <p className="w-full bg-light-gray">
               {`$${job.salary} / ${job.salaryType}`}
             </p>
@@ -94,6 +102,7 @@ const JobInfo = ({ job }: IJobCardProps) => {
           </p>
         </div>
       </div>
+      <JobInfoButtonContainer job={job} />
     </div>
   );
 };

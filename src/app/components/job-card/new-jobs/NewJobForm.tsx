@@ -186,7 +186,7 @@ const NewJobForm = ({ setOpen }: INewJobFormProps) => {
               type="number"
               className="h-10 w-full rounded-full border-2 border-black text-center shadow-lg outline-none placeholder:text-center placeholder:font-semibold placeholder:text-slate-800"
               placeholder="Salary"
-              {...register("salary")}
+              {...register("salary", {pattern: /^-?\d{1,3}(,\d{3})*(\.\d\d)?$|^\.\d\d$/})}
             />
             {errors.salary && <p>{errors.salary.message}</p>}
             <select

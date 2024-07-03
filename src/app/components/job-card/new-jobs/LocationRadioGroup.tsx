@@ -1,8 +1,15 @@
+"use client"
+
 import React from "react";
 import { RadioGroup, RadioGroupItem } from "../../ui/radio-group";
 import { useJobInfoStore } from "~/stores/jobInfoStore";
+import { type JobApplication } from "~/helpers/types";
 
-const LocationRadioGroup = () => {
+interface ILocationRadioGroupProps {
+  job?: JobApplication;
+}
+
+const LocationRadioGroup = ({ job }: ILocationRadioGroupProps) => {
   const { locationRadioSelection, setLocationRadioSelection } =
     useJobInfoStore();
 
@@ -13,7 +20,15 @@ const LocationRadioGroup = () => {
   return (
     <div className="flex ">
       <RadioGroup
-        defaultValue="remote"
+        defaultValue={
+          job && job.isRemote
+            ? "remote"
+            : job && job.isUSBased
+              ? "usbased"
+              : job && job.isOutsideUS
+                ? "outsideus"
+                : "remote"
+        }
         className="flex w-full items-center justify-center"
       >
         <div className="flex items-center gap-[2px]">

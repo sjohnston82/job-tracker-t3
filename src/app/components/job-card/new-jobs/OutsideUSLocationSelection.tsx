@@ -1,8 +1,21 @@
 import React, { type ChangeEvent } from "react";
+import { type JobApplication } from "~/helpers/types";
+import { cn } from "~/lib/utils";
 import { useJobInfoStore } from "~/stores/jobInfoStore";
 
-const OutsideUSLocationSelection = () => {
-  const { city, country, setCity, setCountry } = useJobInfoStore();
+interface IOutsideUSLocationProps {
+  job?: JobApplication;
+}
+
+const OutsideUSLocationSelection = ({ job }: IOutsideUSLocationProps) => {
+  const {
+    city,
+    country,
+    setCity,
+    setCountry,
+    isEditing,
+    locationRadioSelection,
+  } = useJobInfoStore();
 
   const handleCityChange = (event: ChangeEvent<HTMLInputElement>) => {
     setCity(event.target.value);
@@ -16,22 +29,36 @@ const OutsideUSLocationSelection = () => {
     <div className="flex w-full gap-2">
       <input
         type="text"
-        className="h-10 w-1/2 rounded-full border-2 border-black text-center shadow-lg outline-none placeholder:text-center placeholder:font-semibold placeholder:text-slate-800"
+        className={cn(
+          "h-10 w-1/2 rounded-full border-2 border-black text-center shadow-lg outline-none placeholder:text-center placeholder:font-semibold placeholder:text-slate-800",
+          {
+            "h-[25px] w-full flex-1 rounded-none border-b border-l-0 border-r-0 border-t-0 border-black bg-green-200 text-center outline-none placeholder:text-center":
+              isEditing,
+          },
+        )}
         onChange={handleCityChange}
         value={city}
-        placeholder="City"
+        placeholder={
+          job?.city && locationRadioSelection === "outsideus" && job.isOutsideUS
+            ? job.city
+            : "City"
+        }
       />
       <select
         name="country"
         onChange={handleCountryChange}
         value={country}
-        
-        className="h-10 w-1/2 rounded-full text-sm border-2 border-black text-center font-semibold text-slate-900 shadow-lg outline-none placeholder:text-center placeholder:font-semibold placeholder:text-slate-800"
+        className={cn(
+          "h-10 w-1/2 rounded-full border-2 border-black text-center text-sm font-semibold text-slate-900 shadow-lg outline-none placeholder:text-center placeholder:font-semibold placeholder:text-slate-800",
+          {
+            "h-[25px] w-full flex-1 rounded-none border-b border-l-0 border-r-0 border-t-0 border-black bg-green-200 text-center outline-none placeholder:text-center":
+              isEditing,
+          },
+        )}
       >
-        <option value="" disabled >
-          Country
+        <option value={job?.country ?? ""} disabled={!job}>
+          {job?.country ?? "Country"}
         </option>
-        <option value="United States">United States</option>
         <option value="Afghanistan">Afghanistan</option>
         <option value="Albania">Albania</option>
         <option value="Algeria">Algeria</option>

@@ -1,6 +1,6 @@
-"use client"
+"use client";
 
-import React from "react";
+import React, { useCallback, useEffect } from "react";
 import { RadioGroup, RadioGroupItem } from "../../ui/radio-group";
 import { useJobInfoStore } from "~/stores/jobInfoStore";
 import { type JobApplication } from "~/helpers/types";
@@ -13,9 +13,21 @@ const LocationRadioGroup = ({ job }: ILocationRadioGroupProps) => {
   const { locationRadioSelection, setLocationRadioSelection } =
     useJobInfoStore();
 
-  const handleRadioChange = (value: "remote" | "usbased" | "outsideus") => {
-    setLocationRadioSelection(value);
-  };
+  const handleRadioChange = useCallback(
+    (value: "remote" | "usbased" | "outsideus") => {
+      setLocationRadioSelection(value);
+    },
+    [setLocationRadioSelection],
+  );
+
+  useEffect(() => {
+    if (job && job.isUSBased) {
+      handleRadioChange("usbased");
+    }
+    if (job && job.isOutsideUS) {
+      handleRadioChange("outsideus");
+    }
+  }, [handleRadioChange, job]);
 
   return (
     <div className="flex ">

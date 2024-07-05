@@ -58,7 +58,6 @@ const editJobApplicationSchema = z.object({
 });
 
 const EditingJobInfo = ({ job }: IEditingJobCardProps) => {
-
   const { locationRadioSelection } = useJobInfoStore();
 
   const {
@@ -119,18 +118,12 @@ const EditingJobInfo = ({ job }: IEditingJobCardProps) => {
 
         <div className="w-full flex-col items-center justify-center gap-2 text-center">
           <p className="font-semibold underline">Location: </p>
-          {/* <p className="w-full bg-light-gray">
-            {job.isRemote
-              ? "Remote"
-              : job.isUSBased
-                ? `${job.city}, ${job.state}`
-                : `${job.city}, ${job.country}`}
-          </p> */}
+
           <LocationRadioGroup job={job} />
           {locationRadioSelection === "usbased" ? (
-            <USBasedLocationSelection />
+            <USBasedLocationSelection job={job} />
           ) : locationRadioSelection === "outsideus" ? (
-            <OutsideUSLocationSelection />
+            <OutsideUSLocationSelection job={job} />
           ) : (
             locationRadioSelection === "remote"
           )}
@@ -148,22 +141,7 @@ const EditingJobInfo = ({ job }: IEditingJobCardProps) => {
                 {...register("salary")}
               />
             </>
-            <select name="" id="" className="flex-1 bg-green-200">
-              {/* <option
-                value={job.salaryType ?? ""}
-                disabled={job.salaryType === ""}
-                className=""
-              >
-                {job.salaryType}
-              </option>
-              <option
-                value={job.salaryType === "" ? "yearly" : "hourly"}
-                className=""
-              >
-                {job.salaryType === "hourly" ? "yearly" : "hourly"}
-              </option>
-              {job.salaryType === "yearly" && <option value="yearly">yearly</option>}
-              {job.salaryType === "" && <option value="hourly">hourly</option>} */}
+            <select className="flex-1 bg-green-200" {...register("salaryType")}>
               {job.salaryType === "" ? (
                 <>
                   <option className="bg-green-200" value=""></option>
@@ -197,22 +175,22 @@ const EditingJobInfo = ({ job }: IEditingJobCardProps) => {
           </div>
         </div>
 
-        <div className="flex w-full">
+        <div className="flex w-full gap-2">
           <div className="w-full flex-col items-center justify-center gap-2 text-center">
             <p className="font-semibold underline">Job Type:</p>
-            {job.jobType ? (
-              <p className="w-full bg-light-gray">{job.jobType}</p>
-            ) : (
-              <p className="w-full bg-light-gray">Unknown</p>
-            )}
+            <select
+              name=""
+              id=""
+              className="w-full flex-1 bg-green-200"
+            ></select>
           </div>
           <div className="w-full flex-col items-center justify-center gap-2 text-center">
             <p className="font-semibold underline">Job Source:</p>
-            {job.jobSource ? (
-              <p className="w-full bg-light-gray">{job.jobSource}</p>
-            ) : (
-              <p className="w-full bg-light-gray">Unknown</p>
-            )}
+            <select
+              name=""
+              id=""
+              className="w-full flex-1 bg-green-200"
+            ></select>
           </div>
         </div>
 
@@ -229,7 +207,6 @@ const EditingJobInfo = ({ job }: IEditingJobCardProps) => {
                 Link
               </a>
             </p>
-            <p className="">POOP</p>
           </div>
         </div>
       </div>

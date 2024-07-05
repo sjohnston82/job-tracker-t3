@@ -1,6 +1,11 @@
 "use client";
 
-import React, { type Dispatch, type SetStateAction, useState } from "react";
+import React, {
+  type Dispatch,
+  type SetStateAction,
+  useState,
+  useEffect,
+} from "react";
 import { useForm } from "react-hook-form";
 import LocationRadioGroup from "./LocationRadioGroup";
 import { useJobInfoStore } from "~/stores/jobInfoStore";
@@ -33,32 +38,72 @@ interface IAddJobApplication {
   jobSource?: string;
 }
 
-const addJobApplicationSchema = z.object({
-  title: z
-    .string()
-    .min(2, { message: "You need at least two characters" })
-    .max(75, { message: "You have exceeded the characters amount." }),
-  company: z
-    .string()
-    .min(2, { message: "You need at least two characters" })
-    .max(75, { message: "You have exceeded the characters amount." }),
-  salary: z.string().optional(),
-  jobURL: z.string().url(),
-  city: z
-    .string()
-    .min(2, { message: "You need at least two characters" })
-    .max(75, { message: "You have exceeded the characters amount." })
-    .optional(),
-  country: z
-    .string()
-    .min(2, { message: "You need at least two characters" })
-    .max(75, { message: "You have exceeded the characters amount." })
-    .optional(),
-  state: z.string().optional(),
-  salaryType: z.string().optional(),
-  jobType: z.string().optional(),
-  jobSource: z.string().optional(),
-});
+const createAddJobApplicationSchema = (locationRadioSelection: string) => {
+  return z
+    .object({
+      title: z
+        .string()
+        .min(2, { message: "You need at least two characters" })
+        .max(75, { message: "You have exceeded the characters amount." }),
+      company: z
+        .string()
+        .min(2, { message: "You need at least two characters" })
+        .max(75, { message: "You have exceeded the characters amount." }),
+      salary: z.string().optional(),
+      jobURL: z.string().url(),
+      city: z
+        .string()
+        // .min(2, { message: "You need at least two characters" })
+        // .max(75, { message: "You have exceeded the characters amount." })
+        .optional(),
+      country: z.string().optional(),
+      // .min(2, { message: "You need at least two characters" })
+      // .max(75, { message: "You have exceeded the characters amount." })
+      state: z.string().optional(),
+      salaryType: z.string().optional(),
+      jobType: z.string().optional(),
+      jobSource: z.string().optional(),
+      // isRemote: z.boolean().default(true),
+    })
+    .superRefine((data, ctx) => {
+      if (locationRadioSelection === "usbased") {
+        if (!data.state || data.state === "State" || data.state.trim() === "") {
+          ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            message: "State is required if location is US-based.",
+            path: ["state"],
+          });
+        }
+      } else if (locationRadioSelection === "outsideusbased") {
+        if (
+          !data.country ||
+          data.country.trim() === "Country" ||
+          data.country.trim() === ""
+        ) {
+          ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            message: "Country is required if location is outside the US.",
+            path: ["country"],
+          });
+        }
+      }
+      if (
+        locationRadioSelection === "usbased" ||
+        locationRadioSelection === "outsideus"
+      ) {
+        if (data.city && data.city.length < 2) {
+          ctx.addIssue({
+            code: z.ZodIssueCode.too_small,
+            minimum: 2,
+            inclusive: true,
+            type: "string",
+            message: "City must be at least two characters.",
+            path: ["city"],
+          });
+        }
+      }
+    });
+};
 
 const NewJobForm = ({ setOpen }: INewJobFormProps) => {
   const [addingMoreInfo, setAddingMoreInfo] = useState(false);
@@ -74,10 +119,15 @@ const NewJobForm = ({ setOpen }: INewJobFormProps) => {
   } = useJobInfoStore();
   const { user } = useAuthStore();
 
+  const addJobApplicationSchema = createAddJobApplicationSchema(
+    locationRadioSelection,
+  );
+
   const {
     register,
     handleSubmit,
     reset,
+    setValue,
     formState: { errors },
   } = useForm<IAddJobApplication>({
     resolver: zodResolver(addJobApplicationSchema),
@@ -89,8 +139,31 @@ const NewJobForm = ({ setOpen }: INewJobFormProps) => {
       salaryType: "",
       jobType: "",
       jobSource: "",
+      city: "",
+      state: "",
+      country: "",
     },
   });
+
+  console.log("Form Errors:", errors);
+
+  useEffect(() => {
+    setValue("city", city);
+  }, [city, setValue]);
+
+  useEffect(() => {
+    setValue("state", state);
+  }, [state, setValue]);
+
+  useEffect(() => {
+    setValue("country", country);
+  }, [country, setValue]);
+
+  // useEffect(() => {
+  //   if (locationRadioSelection === "remote") {
+  //     setValue("isRemote", true);
+  //   }
+  // }, [locationRadioSelection, setValue]);
 
   const utils = api.useUtils();
 
@@ -114,6 +187,9 @@ const NewJobForm = ({ setOpen }: INewJobFormProps) => {
       return;
     }
 
+    // console.log("Location Radio Selection:", locationRadioSelection);
+    // console.log("Form Data:", data);
+
     const mutationData = {
       owner: user?.id,
       title: data.title,
@@ -122,9 +198,9 @@ const NewJobForm = ({ setOpen }: INewJobFormProps) => {
       isRemote: locationRadioSelection === "remote",
       isUSBased: locationRadioSelection === "usbased",
       isOutsideUS: locationRadioSelection === "outsideus",
-      country: country ?? "",
-      state: state ?? "",
-      city: city ?? "",
+      country: data.country ?? "",
+      state: data.state ?? "",
+      city: data.city ?? "",
       dateApplied: new Date(Date.now()),
       jobSource: data.jobSource ?? "",
       jobType: data.jobType ?? "",
@@ -171,12 +247,27 @@ const NewJobForm = ({ setOpen }: INewJobFormProps) => {
       {errors.jobURL && <p>{errors.jobURL.message}</p>}
       <p className="text-center font-bold underline">Location</p>
       <LocationRadioGroup />
-      {locationRadioSelection === "usbased" ? (
-        <USBasedLocationSelection />
-      ) : locationRadioSelection === "outsideus" ? (
-        <OutsideUSLocationSelection />
-      ) : (
-        locationRadioSelection === "remote"
+      {locationRadioSelection === "usbased" && (
+        <>
+          <USBasedLocationSelection />
+          {errors.city && (
+            <p className="text-xs text-red-500">{errors.city.message}</p>
+          )}
+          {errors.state && (
+            <p className="text-xs text-red-500">{errors.state.message}</p>
+          )}
+        </>
+      )}
+      {locationRadioSelection === "outsideus" && (
+        <>
+          <OutsideUSLocationSelection />
+          {errors.city && (
+            <p className="text-xs text-red-500">{errors.city.message}</p>
+          )}
+          {errors.country && (
+            <p className="text-xs text-red-500">{errors.country.message}</p>
+          )}
+        </>
       )}
 
       {addingMoreInfo && (
@@ -186,7 +277,9 @@ const NewJobForm = ({ setOpen }: INewJobFormProps) => {
               type="number"
               className="h-10 w-full rounded-full border-2 border-black text-center shadow-lg outline-none placeholder:text-center placeholder:font-semibold placeholder:text-slate-800"
               placeholder="Salary"
-              {...register("salary", {pattern: /^-?\d{1,3}(,\d{3})*(\.\d\d)?$|^\.\d\d$/})}
+              {...register("salary", {
+                pattern: /^-?\d{1,3}(,\d{3})*(\.\d\d)?$|^\.\d\d$/,
+              })}
             />
             {errors.salary && <p>{errors.salary.message}</p>}
             <select

@@ -23,8 +23,16 @@ interface IJobCardProps {
 }
 
 const JobCard: React.FC<IJobCardProps> = ({ job }) => {
+  const {
+    isEditing,
+    stopIsEditing,
+    setLocationRadioSelection,
+  } = useJobInfoStore();
 
-  const { isEditing, stopIsEditing, startIsEditing } = useJobInfoStore();
+  const modalCloseReset = () => {
+    stopIsEditing();
+    setLocationRadioSelection("remote");
+  };
 
   return (
     <div className="flex  min-h-[200px] min-w-[280px] max-w-[240px] flex-col flex-wrap items-center gap-2 rounded-xl border border-black shadow-lg shadow-black">
@@ -55,7 +63,7 @@ const JobCard: React.FC<IJobCardProps> = ({ job }) => {
           {transformStageOfApplication(job.stageOfApplication)}
         </p>
         <div className="relative flex justify-between gap-3">
-          <Dialog onOpenChange={stopIsEditing}>
+          <Dialog onOpenChange={modalCloseReset}>
             <DialogTrigger asChild>
               <Button variant={"normal"} size="sm">
                 More Info
@@ -63,7 +71,9 @@ const JobCard: React.FC<IJobCardProps> = ({ job }) => {
             </DialogTrigger>
             <DialogContent className="max-h-screen  max-w-[300px] overflow-y-scroll rounded-xl">
               <DialogHeader>
-                <DialogTitle className="">{isEditing && "Editing Job App Info"}</DialogTitle>
+                <DialogTitle className="">
+                  {isEditing && "Editing Job App Info"}
+                </DialogTitle>
               </DialogHeader>
               <div className=" absolute right-10 top-[14px]">
                 <JobOptionsDropDown job={job} />

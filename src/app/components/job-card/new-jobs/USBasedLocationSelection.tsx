@@ -1,8 +1,15 @@
 import React, { type ChangeEvent } from "react";
+import { type JobApplication } from "~/helpers/types";
+import { cn } from "~/lib/utils";
 import { useJobInfoStore } from "~/stores/jobInfoStore";
 
-const USBasedLocationSelection = () => {
-  const { city, state, setCity, setState } = useJobInfoStore();
+interface IUSBasedLocationProps {
+  job?: JobApplication;
+}
+
+const USBasedLocationSelection = ({ job }: IUSBasedLocationProps) => {
+  const { city, state, setCity, setState, isEditing, locationRadioSelection } =
+    useJobInfoStore();
 
   const handleCityChange = (event: ChangeEvent<HTMLInputElement>) => {
     setCity(event.target.value);
@@ -16,19 +23,35 @@ const USBasedLocationSelection = () => {
     <div className="flex w-full gap-2">
       <input
         type="text"
-        className="h-10 w-2/3 rounded-full border-2 border-black text-center shadow-lg outline-none placeholder:text-center placeholder:font-semibold placeholder:text-slate-800"
+        className={cn(
+          "h-10 w-1/2 rounded-full border-2 border-black text-center shadow-lg outline-none placeholder:text-center placeholder:font-semibold placeholder:text-slate-800",
+          {
+            "h-[25px] w-full flex-1 rounded-none border-b border-l-0 border-r-0 border-t-0 border-black bg-green-200 text-center outline-none placeholder:text-center":
+              isEditing,
+          },
+        )}
         onChange={handleCityChange}
         value={city}
-        placeholder="City"
+        placeholder={
+          job?.city && locationRadioSelection === "usbased" && !job.isOutsideUS
+            ? job.city
+            : "City"
+        }
       />
       <select
         name="state"
         onChange={handleStateChange}
         value={state}
-        className="h-10 w-1/3 rounded-full border-2 border-black text-center font-semibold text-slate-900 shadow-lg outline-none placeholder:text-center placeholder:font-semibold placeholder:text-slate-800"
+        className={cn(
+          "h-10 w-1/2 rounded-full border-2 border-black text-center text-sm font-semibold text-slate-900 shadow-lg outline-none placeholder:text-center placeholder:font-semibold placeholder:text-slate-800",
+          {
+            "h-[25px] w-full flex-1 rounded-none border-b border-l-0 border-r-0 border-t-0 border-black bg-green-200 text-center outline-none placeholder:text-center":
+              isEditing,
+          },
+        )}
       >
-        <option value="" disabled className="font-semibold text-slate-900">
-          State
+        <option value={job?.state ?? ""} disabled={!job}>
+          {job?.state ?? "State"}
         </option>
         <option value="AL">AL</option>
         <option value="AK">AK</option>

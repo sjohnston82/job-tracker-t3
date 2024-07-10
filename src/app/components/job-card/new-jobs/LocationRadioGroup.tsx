@@ -10,12 +10,13 @@ interface ILocationRadioGroupProps {
 }
 
 const LocationRadioGroup = ({ job }: ILocationRadioGroupProps) => {
-  const { locationRadioSelection, setLocationRadioSelection } =
+  const { locationRadioSelection, setLocationRadioSelection, setCity } =
     useJobInfoStore();
 
   const handleRadioChange = useCallback(
     (value: "remote" | "usbased" | "outsideus") => {
       setLocationRadioSelection(value);
+      
     },
     [setLocationRadioSelection],
   );

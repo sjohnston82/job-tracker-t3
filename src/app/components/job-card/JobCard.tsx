@@ -27,11 +27,17 @@ const JobCard: React.FC<IJobCardProps> = ({ job }) => {
     isEditing,
     stopIsEditing,
     setLocationRadioSelection,
+    setCity,
+    setState,
+    setCountry,
   } = useJobInfoStore();
 
   const modalCloseReset = () => {
     stopIsEditing();
     setLocationRadioSelection("remote");
+    setCity("");
+    setState("");
+    setCountry("");
   };
 
   return (
@@ -78,7 +84,7 @@ const JobCard: React.FC<IJobCardProps> = ({ job }) => {
               <div className=" absolute right-10 top-[14px]">
                 <JobOptionsDropDown job={job} />
               </div>
-              {isEditing ? <EditingJobInfo job={job} /> : <JobInfo job={job} />}
+              {isEditing ? <EditingJobInfo job={job} modalCloseReset={modalCloseReset} /> : <JobInfo job={job} />}
             </DialogContent>
           </Dialog>
           <JobLinkButton jobURL={job.jobURL} />

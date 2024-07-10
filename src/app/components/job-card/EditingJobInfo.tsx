@@ -1,5 +1,7 @@
-import React from "react";
-import { transformStageOfApplication } from "~/helpers/string-functions";
+"use client";
+
+import React, { useEffect } from "react";
+
 import { type JobApplication } from "~/helpers/types";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
@@ -8,9 +10,12 @@ import LocationRadioGroup from "./new-jobs/LocationRadioGroup";
 import { useJobInfoStore } from "~/stores/jobInfoStore";
 import USBasedLocationSelection from "./new-jobs/USBasedLocationSelection";
 import OutsideUSLocationSelection from "./new-jobs/OutsideUSLocationSelection";
+import { Button } from "../ui/button";
+import { api } from "~/helpers/api";
 
 interface IEditingJobCardProps {
   job: JobApplication;
+  modalCloseReset: () => void;
 }
 
 interface IEditJobApplication {
@@ -30,53 +35,87 @@ interface IEditJobApplication {
   jobSource?: string;
 }
 
-const editJobApplicationSchema = z.object({
-  title: z
-    .string()
-    .min(2, { message: "You need at least two characters" })
-    .max(75, { message: "You have exceeded the characters amount." }),
-  company: z
-    .string()
-    .min(2, { message: "You need at least two characters" })
-    .max(75, { message: "You have exceeded the characters amount." }),
-  salary: z.string().optional(),
-  jobURL: z.string().url(),
-  city: z
-    .string()
-    .min(2, { message: "You need at least two characters" })
-    .max(75, { message: "You have exceeded the characters amount." })
-    .optional(),
-  country: z
-    .string()
-    .min(2, { message: "You need at least two characters" })
-    .max(75, { message: "You have exceeded the characters amount." })
-    .optional(),
-  state: z.string().optional(),
-  salaryType: z.string().optional(),
-  jobType: z.string().optional(),
-  jobSource: z.string().optional(),
-});
+const editJobApplicationSchema = (
+  locationRadioSelection: string,
+  job: JobApplication,
+) => {
+  return z
+    .object({
+      title: z
+        .string()
+        .min(2, { message: "You need at least two characters" })
+        .max(75, { message: "You have exceeded the characters amount." }),
+      company: z
+        .string()
+        .min(2, { message: "You need at least two characters" })
+        .max(75, { message: "You have exceeded the characters amount." }),
+      salary: z.string().optional(),
+      jobURL: z.string().url(),
+      city: z
+        .string()
+        // .min(2, { message: "You need at least two characters" })
+        // .max(75, { message: "You have exceeded the characters amount." })
+        .optional(),
+      country: z.string().optional(),
+      // .min(2, { message: "You need at least two characters" })
+      // .max(75, { message: "You have exceeded the characters amount." })
+      state: z.string().optional(),
+      salaryType: z.string().optional(),
+      jobType: z.string().optional(),
+      jobSource: z.string().optional(),
+      // isRemote: z.boolean().default(true),
+    })
+    .superRefine((data, ctx) => {
+      if (locationRadioSelection === "usbased") {
+        if (!data.state || data.state === "State" || data.state.trim() === "") {
+          ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            message: "State is required if location is US-based.",
+            path: ["state"],
+          });
+        }
+      } else if (locationRadioSelection === "outsideus") {
+        if (
+          !data.country ||
+          data.country.trim() === "Country" ||
+          data.country.trim() === ""
+        ) {
+          ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            message: "Country is required if location is outside the US.",
+            path: ["country"],
+          });
+        }
+      }
+      if (
+        locationRadioSelection === "usbased" ||
+        locationRadioSelection === "outsideus"
+      ) {
+        if (data.city && data.city.length < 2) {
+          ctx.addIssue({
+            code: z.ZodIssueCode.too_small,
+            minimum: 2,
+            inclusive: true,
+            type: "string",
+            message: "City must be at least two characters.",
+            path: ["city"],
+          });
+        }
+      }
+    });
+};
 
-const EditingJobInfo = ({ job }: IEditingJobCardProps) => {
-  const { locationRadioSelection } = useJobInfoStore();
-
+const EditingJobInfo = ({ job, modalCloseReset }: IEditingJobCardProps) => {
   const {
-    register,
-    handleSubmit,
-    reset,
-    formState: { errors },
-  } = useForm<IEditJobApplication>({
-    resolver: zodResolver(editJobApplicationSchema),
-    defaultValues: {
-      title: job.title ?? "",
-      company: job.company ?? "",
-      jobURL: (job.jobURL as string) ?? "",
-      salary: job.salary ?? "",
-      salaryType: job.salaryType ?? "",
-      jobType: job.jobType ?? "",
-      jobSource: job.jobSource ?? "",
-    },
-  });
+    locationRadioSelection,
+    setLocationRadioSelection,
+    setCity,
+    setState,
+    setCountry,
+    city,
+    state,
+    country,
+  } = useJobInfoStore();
 
   const jobURLString =
     typeof job.jobURL === "string"
@@ -88,8 +127,93 @@ const EditingJobInfo = ({ job }: IEditingJobCardProps) => {
       ? jobURLString
       : `https://${jobURLString}`;
 
+  const editingJobApplicationSchema = editJobApplicationSchema(
+    locationRadioSelection,
+    job,
+  );
+
+  const {
+    register,
+    handleSubmit,
+    reset,
+    setValue,
+    formState: { errors },
+  } = useForm<IEditJobApplication>({
+    resolver: zodResolver(editingJobApplicationSchema),
+    defaultValues: {
+      title: job.title ?? "",
+      company: job.company ?? "",
+      jobURL: formattedJobURL ?? "",
+      salary: job.salary ?? "",
+      salaryType: job.salaryType ?? "",
+      jobType: job.jobType ?? "",
+      jobSource: job.jobSource ?? "",
+      city: job.city ?? "",
+      state: job.state ?? "",
+      country: job.country ?? "",
+    },
+  });
+  console.log("Form Errors:", errors);
+  const utils = api.useUtils();
+
+  const editJobApp = api.jobApplicationsRouter.editJobApplication.useMutation({
+    onSuccess: () => utils.invalidate(),
+    onError: (err) => console.log(err),
+  });
+
+  useEffect(() => {
+    if (city === "" && job.city) {
+      setCity(job.city);
+    }
+    setValue("city", city);
+  }, [city, setValue, job.city, setCity]);
+
+  useEffect(() => {
+    if (state === "" && job.state) {
+      setState(job.state);
+    }
+    setValue("state", state);
+  }, [state, setValue, job.state, setState]);
+
+  useEffect(() => {
+    if (country === "" && job.country) {
+      setCountry(job.country);
+    }
+    setValue("country", country);
+  }, [country, job.country, setCountry, setValue]);
+
+  const onSubmit = (data: IEditJobApplication) => {
+    const mutationData = {
+      id: job.id,
+      owner: job.owner,
+      title: data.title,
+      company: data.company,
+      jobURL: data.jobURL,
+      isRemote: locationRadioSelection === "remote",
+      isUSBased: locationRadioSelection === "usbased",
+      isOutsideUS: locationRadioSelection === "outsideus",
+      country: data.country ?? "",
+      state: data.state ?? "",
+      city: data.city ?? "",
+      dateApplied: new Date(Date.now()),
+      jobSource: data.jobSource ?? "",
+      jobType: data.jobType ?? "",
+      salary: data.salary ?? "",
+      salaryType: data.salaryType ?? "",
+    };
+
+    console.log("Mutation Data: ", mutationData);
+
+    // Assuming `editJobApp` is defined somewhere in the component or imported
+    editJobApp.mutate(mutationData);
+
+    reset();
+    modalCloseReset();
+    // setOpen(false);
+  };
+
   return (
-    <form action="">
+    <form onSubmit={handleSubmit(onSubmit)}>
       <div className="relative flex w-full flex-col items-center justify-center gap-2">
         <div className="w-full flex-col items-center justify-center gap-2 text-center">
           <p className="font-semibold underline ">Title: </p>
@@ -109,12 +233,12 @@ const EditingJobInfo = ({ job }: IEditingJobCardProps) => {
           />
         </div>
 
-        <div className="w-full flex-col items-center justify-center gap-2 text-center">
+        {/* <div className="w-full flex-col items-center justify-center gap-2 text-center">
           <p className="font-semibold underline">Stage of Application: </p>
           <p className="w-full bg-light-gray">
             {transformStageOfApplication(job.stageOfApplication)}
           </p>
-        </div>
+        </div> */}
 
         <div className="w-full flex-col items-center justify-center gap-2 text-center">
           <p className="font-semibold underline">Location: </p>
@@ -141,7 +265,10 @@ const EditingJobInfo = ({ job }: IEditingJobCardProps) => {
                 {...register("salary")}
               />
             </>
-            <select className="flex-1 bg-green-200" {...register("salaryType")}>
+            <select
+              className="flex-1 border-b border-black bg-green-200"
+              {...register("salaryType")}
+            >
               {job.salaryType === "" ? (
                 <>
                   <option className="bg-green-200" value=""></option>
@@ -179,36 +306,55 @@ const EditingJobInfo = ({ job }: IEditingJobCardProps) => {
           <div className="w-full flex-col items-center justify-center gap-2 text-center">
             <p className="font-semibold underline">Job Type:</p>
             <select
-              name=""
               id=""
-              className="w-full flex-1 bg-green-200"
-            ></select>
+              className="w-full flex-1 border-b border-black bg-green-200"
+              {...register("jobType")}
+            >
+              <option value="">Job Type</option>
+              <option value="fullTime">Full-Time</option>
+              <option value="partTime">Part-Time</option>
+              <option value="contract">Contract</option>
+              <option value="internship">Internship</option>
+            </select>
           </div>
           <div className="w-full flex-col items-center justify-center gap-2 text-center">
             <p className="font-semibold underline">Job Source:</p>
             <select
-              name=""
+              {...register("jobSource")}
               id=""
-              className="w-full flex-1 bg-green-200"
-            ></select>
+              className="w-full flex-1 border-b border-black bg-green-200"
+            >
+              <option value="">Job Source</option>
+              <option value="linkedin">LinkedIn</option>
+              <option value="indeed">Indeed</option>
+              <option value="dice">Dice</option>
+              <option value="wellfound">Wellfound</option>
+              <option value="blind">Blind</option>
+              <option value="careerPage">Career Page</option>
+              <option value="referral">Personal Referral</option>
+            </select>
           </div>
         </div>
 
         <div className="w-full flex-col items-center justify-center gap-2 text-center">
           <p className="font-semibold underline">Job Posting URL: </p>
           <div className="flex">
-            <p className="w-full bg-light-gray">
-              <a
-                href={formattedJobURL}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-blue-500 underline"
-              >
-                Link
-              </a>
-            </p>
+            <input
+              className="w-full flex-1 border-b border-black bg-green-200 text-center placeholder:text-center"
+              // placeholder={job.jobURL as string ?? ""}
+              type="text"
+              {...register("jobURL")}
+            />
           </div>
         </div>
+      </div>
+      <div className="mt-6 flex justify-between">
+        <Button variant="destructive" size="sm">
+          Cancel
+        </Button>
+        <Button variant="outline" size="sm" type="submit">
+          Apply Changes
+        </Button>
       </div>
     </form>
   );

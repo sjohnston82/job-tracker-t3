@@ -143,4 +143,81 @@ export const jobApplicationsRouter = createTRPCRouter({
 
       await createJobApp(newJobApp);
     }),
+
+  editJobApplication: protectedProcedure
+    .input(
+      z.object({
+        id: z.string(),
+        owner: z.string(),
+        title: z.string(),
+        company: z.string(),
+        isRemote: z.boolean(),
+        isUSBased: z.boolean(),
+        isOutsideUS: z.boolean(),
+        country: z.string().optional(),
+        city: z.string().optional(),
+        state: z.string().optional(),
+        jobURL: z.string().optional(),
+        dateApplied: z.date(),
+        jobSource: z.string().optional(),
+        salary: z.string().optional(),
+        salaryType: z.string().optional(),
+        // levelOfInterest: z.string().optional(),
+        // resume: z.boolean(),
+        // resumeUploadURL: z.string().optional(),
+        // coverLetter: z.boolean(),
+        // coverLetterUploadURL: z.string().optional(),
+        // project: z.boolean(),
+        // projectURL: z.string().optional(),
+        // projectLink: z.string().optional(),
+        jobType: z.string().optional(),
+      }),
+    )
+    .mutation(async ({ input }) => {
+      const {
+        id,
+        title,
+        owner,
+        company,
+        isRemote,
+        isUSBased,
+        isOutsideUS,
+        country,
+        city,
+        state,
+        jobURL,
+        dateApplied,
+        salary,
+        salaryType,
+        jobType,
+        jobSource,
+      } = input;
+
+      const currentJob = await db
+        .select()
+        .from(jobApplications)
+        .where(eq(jobApplications.id, id));
+
+      await db
+        .update(jobApplications)
+        .set({
+          title: title,
+          owner: owner,
+          company: company,
+          isRemote: isRemote,
+          isUSBased: isUSBased,
+          isOutsideUS: isOutsideUS,
+          country: country,
+          city: city,
+          state: state,
+          jobURL: jobURL,
+          salary: salary,
+          salaryType: salaryType,
+          jobType: jobType,
+          jobSource: jobSource,
+        })
+        .where(eq(jobApplications.id, id));
+
+      return currentJob;
+    }),
 });

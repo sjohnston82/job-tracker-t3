@@ -51,7 +51,7 @@ const USBasedLocationSelection = ({ job }: IUSBasedLocationProps) => {
         )}
       >
         <option value={job?.state ?? ""} disabled={!job}>
-          {job?.state ?? "State"}
+          {job?.state && !job.isOutsideUS ? job.state : "State"}
         </option>
         <option value="AL">AL</option>
         <option value="AK">AK</option>

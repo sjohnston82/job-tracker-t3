@@ -145,7 +145,7 @@ const NewJobForm = ({ setOpen }: INewJobFormProps) => {
     },
   });
 
-  console.log("Form Errors:", errors);
+  // console.log("Form Errors:", errors);
 
   useEffect(() => {
     setValue("city", city);

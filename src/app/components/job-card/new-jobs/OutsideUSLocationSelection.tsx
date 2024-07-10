@@ -57,7 +57,7 @@ const OutsideUSLocationSelection = ({ job }: IOutsideUSLocationProps) => {
         )}
       >
         <option value={job?.country ?? ""} disabled={!job}>
-          {job?.country ?? "Country"}
+          {job?.country && job.isOutsideUS ? job.country : "Country"}
         </option>
         <option value="Afghanistan">Afghanistan</option>
         <option value="Albania">Albania</option>

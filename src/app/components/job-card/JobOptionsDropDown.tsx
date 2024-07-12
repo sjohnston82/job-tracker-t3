@@ -16,6 +16,7 @@ import {
   Pencil,
   Trash2,
   Package,
+  FolderOpen,
 } from "lucide-react";
 import { type JobApplication } from "~/helpers/types";
 import { useJobInfoStore } from "~/stores/jobInfoStore";
@@ -40,10 +41,18 @@ const JobOptionsDropDown = ({ job }: IJobCardProps) => {
 
   const deleteJob = () => deleteJobApplication.mutate({ id: job.id });
 
-   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const archiveJobApplication =
+    api.jobApplicationsRouter.toggleArchiveJobApplication.useMutation({
+      onSuccess: () => utils.invalidate(),
+      onError: (error) => console.log(error),
+    });
 
-   const openDialog = () => setIsDialogOpen(true);
-   const closeDialog = () => setIsDialogOpen(false);
+  const archiveJob = () => archiveJobApplication.mutate({ id: job.id });
+
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+
+  const openDialog = () => setIsDialogOpen(true);
+  const closeDialog = () => setIsDialogOpen(false);
   return (
     <>
       <DropdownMenu>
@@ -67,13 +76,21 @@ const JobOptionsDropDown = ({ job }: IJobCardProps) => {
               </span>
             </DropdownMenuItem>
 
-            <DropdownMenuItem>
-              <Package className="mr-2 h-4 w-4" />
-              <span className="cursor-pointer hover:font-bold hover:duration-100">
-                Archive
-              </span>
-            </DropdownMenuItem>
-
+            {!job.isArchived ? (
+              <DropdownMenuItem onClick={archiveJob}>
+                <Package className="mr-2 h-4 w-4" />
+                <span className="cursor-pointer hover:font-bold hover:duration-100">
+                  Archive
+                </span>
+              </DropdownMenuItem>
+            ) : (
+              <DropdownMenuItem onClick={archiveJob}>
+                <FolderOpen className="mr-2 h-4 w-4" />
+                <span className="cursor-pointer hover:font-bold hover:duration-100">
+                  Unarchive
+                </span>
+              </DropdownMenuItem>
+            )}
             <DropdownMenuItem onClick={openDialog}>
               <Trash2 className="mr-2 h-4 w-4" />
               <span className="cursor-pointer hover:font-bold hover:duration-100">
@@ -86,7 +103,7 @@ const JobOptionsDropDown = ({ job }: IJobCardProps) => {
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
         <DialogContent className="w-2/3 rounded-2xl">
           <p>Are you sure you want to delete this job application?</p>
-          <div className=" m-auto gap-10 flex justify-around">
+          <div className=" m-auto flex justify-around gap-10">
             <Button variant="outline" onClick={closeDialog}>
               Cancel
             </Button>

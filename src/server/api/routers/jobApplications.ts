@@ -1,4 +1,4 @@
-import { eq } from "drizzle-orm";
+import { eq, not } from "drizzle-orm";
 import { z } from "zod";
 import { uuid } from "uuidv4";
 
@@ -234,5 +234,21 @@ export const jobApplicationsRouter = createTRPCRouter({
         .delete(jobApplications)
         .where(eq(jobApplications.id, id))
         .returning();
+    }),
+
+  toggleArchiveJobApplication: protectedProcedure
+    .input(
+      z.object({
+        id: z.string(),
+      }),
+    )
+    .mutation(async ({ input }) => {
+      const { id } = input;
+
+      await db
+        .update(jobApplications)
+        .set({ isArchived: not(jobApplications.isArchived) })
+        .where(eq(jobApplications.id, id))
+        .returning({ id: jobApplications.id });
     }),
 });

@@ -35,10 +35,7 @@ interface IEditJobApplication {
   jobSource?: string;
 }
 
-const editJobApplicationSchema = (
-  locationRadioSelection: string,
-  job: JobApplication,
-) => {
+const editJobApplicationSchema = (locationRadioSelection: string) => {
   return z
     .object({
       title: z
@@ -108,7 +105,6 @@ const editJobApplicationSchema = (
 const EditingJobInfo = ({ job, modalCloseReset }: IEditingJobCardProps) => {
   const {
     locationRadioSelection,
-    setLocationRadioSelection,
     setCity,
     setState,
     setCountry,
@@ -129,7 +125,6 @@ const EditingJobInfo = ({ job, modalCloseReset }: IEditingJobCardProps) => {
 
   const editingJobApplicationSchema = editJobApplicationSchema(
     locationRadioSelection,
-    job,
   );
 
   const {
@@ -204,7 +199,6 @@ const EditingJobInfo = ({ job, modalCloseReset }: IEditingJobCardProps) => {
 
     console.log("Mutation Data: ", mutationData);
 
-    // Assuming `editJobApp` is defined somewhere in the component or imported
     editJobApp.mutate(mutationData);
 
     reset();
@@ -232,13 +226,6 @@ const EditingJobInfo = ({ job, modalCloseReset }: IEditingJobCardProps) => {
             {...register("company")}
           />
         </div>
-
-        {/* <div className="w-full flex-col items-center justify-center gap-2 text-center">
-          <p className="font-semibold underline">Stage of Application: </p>
-          <p className="w-full bg-light-gray">
-            {transformStageOfApplication(job.stageOfApplication)}
-          </p>
-        </div> */}
 
         <div className="w-full flex-col items-center justify-center gap-2 text-center">
           <p className="font-semibold underline">Location: </p>

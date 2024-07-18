@@ -1,3 +1,5 @@
+
+
 import { create } from "zustand";
 import { type JobApplication } from "~/helpers/types";
 
@@ -9,18 +11,20 @@ type SortBy =
   | "title-asc"
   | "title-desc"
   | "company-asc"
-  | "company-desc"
-  | "salary-asc"
-  | "salary-desc";
+  | "company-desc";
+
+type LocationFilter = "remote" | "usbased" | "outsideus" | "";
 
 interface IJobAppStore {
   totalJobs: JobApplication[];
   activeJobs: JobApplication[];
   archivedJobs: JobApplication[];
   sortBy: SortBy;
+  locationFilter: LocationFilter;
   setTotalJobs: (value: JobApplication[]) => void;
   setSortBy: (value: SortBy) => void;
-  sortJobs: (jobs: JobApplication[], sortBy: SortBy) => JobApplication[];
+  setLocationFilter: (value: LocationFilter) => void;
+  sortAndFilterJobs: () => void;
 }
 
 export const useJobAppStore = create<IJobAppStore>((set, get) => ({
@@ -28,79 +32,84 @@ export const useJobAppStore = create<IJobAppStore>((set, get) => ({
   activeJobs: [],
   archivedJobs: [],
   sortBy: "stageOfApplication-desc", // default
-  setTotalJobs: (value: JobApplication[]) => {
-    const { sortBy, sortJobs } = get();
-    const sortedJobs = sortJobs(value, sortBy);
-    const activeJobs = sortedJobs.filter((job) => !job.isArchived);
-    const archivedJobs = sortedJobs.filter((job) => job.isArchived);
+  locationFilter: "",
 
-    set({
-      totalJobs: sortedJobs,
-      activeJobs: activeJobs,
-      archivedJobs: archivedJobs,
-    });
+  setTotalJobs: (value: JobApplication[]) => {
+    set({ totalJobs: value });
+    get().sortAndFilterJobs();
   },
 
   setSortBy: (value: SortBy) => {
-    const { totalJobs, sortJobs } = get();
-    const sortedJobs = sortJobs(totalJobs, value);
-    const activeJobs = sortedJobs.filter((job) => !job.isArchived);
-    const archivedJobs = sortedJobs.filter((job) => job.isArchived);
-
-    set({
-      sortBy: value,
-      totalJobs: sortedJobs,
-      activeJobs: activeJobs,
-      archivedJobs: archivedJobs,
-    });
+    set({ sortBy: value });
+    get().sortAndFilterJobs();
   },
 
-  sortJobs: (jobs: JobApplication[], sortBy: SortBy) => {
+  setLocationFilter: (value: LocationFilter) => {
+    set({ locationFilter: value });
+    get().sortAndFilterJobs();
+  },
+
+  sortAndFilterJobs: () => {
+    const { totalJobs, sortBy, locationFilter } = get();
+
+    const sortedJobs = [...totalJobs];
     switch (sortBy) {
       case "stageOfApplication-desc":
-        return jobs.sort((a, b) =>
+        sortedJobs.sort((a, b) =>
           b.stageOfApplication! > a.stageOfApplication! ? 1 : -1,
         );
+        break;
       case "stageOfApplication-asc":
-        return jobs.sort((a, b) =>
-          b.stageOfApplication! > a.stageOfApplication! ? -1 : 1,
+        sortedJobs.sort((a, b) =>
+          a.stageOfApplication! > b.stageOfApplication! ? 1 : -1,
         );
+        break;
       case "dateApplied-desc":
-        return jobs.sort(
+        sortedJobs.sort(
           (a, b) =>
             new Date(b.dateApplied).getTime() -
             new Date(a.dateApplied).getTime(),
         );
+        break;
       case "dateApplied-asc":
-        return jobs.sort(
+        sortedJobs.sort(
           (a, b) =>
             new Date(a.dateApplied).getTime() -
             new Date(b.dateApplied).getTime(),
         );
+        break;
       case "company-desc":
-        return jobs.sort((a, b) => b.company!.localeCompare(a.company!));
+        sortedJobs.sort((a, b) => b.company!.localeCompare(a.company!));
+        break;
       case "company-asc":
-        return jobs.sort((a, b) => a.company!.localeCompare(b.company!));
+        sortedJobs.sort((a, b) => a.company!.localeCompare(b.company!));
+        break;
       case "title-desc":
-        return jobs.sort((a, b) => b.title!.localeCompare(a.title!));
+        sortedJobs.sort((a, b) => b.title!.localeCompare(a.title!));
+        break;
       case "title-asc":
-        return jobs.sort((a, b) => a.title!.localeCompare(b.title!));
-      case "salary-desc":
-        return jobs.sort((a, b) => {
-          const salaryA = a.salary ?? "";
-          const salaryB = b.salary ?? "";
-
-          return salaryB.localeCompare(salaryA);
-        });
-      case "salary-desc":
-        return jobs.sort((a, b) => {
-          const salaryA = a.salary ?? "";
-          const salaryB = b.salary ?? "";
-
-          return salaryA.localeCompare(salaryB);
-        });
+        sortedJobs.sort((a, b) => a.title!.localeCompare(b.title!));
+        break;
       default:
-        return jobs;
+        break;
     }
+
+    let filteredJobs = sortedJobs;
+    if (locationFilter) {
+      filteredJobs = sortedJobs.filter((job) => {
+        if (locationFilter === "remote") return job.isRemote;
+        if (locationFilter === "usbased") return job.isUSBased;
+        if (locationFilter === "outsideus") return job.isOutsideUS;
+        return true;
+      });
+    }
+
+    const activeJobs = filteredJobs.filter((job) => !job.isArchived);
+    const archivedJobs = filteredJobs.filter((job) => job.isArchived);
+
+    set({
+      activeJobs: activeJobs,
+      archivedJobs: archivedJobs,
+    });
   },
 }));

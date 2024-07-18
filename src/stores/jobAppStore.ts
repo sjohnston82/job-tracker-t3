@@ -1,5 +1,3 @@
-
-
 import { create } from "zustand";
 import { type JobApplication } from "~/helpers/types";
 
@@ -21,10 +19,17 @@ interface IJobAppStore {
   archivedJobs: JobApplication[];
   sortBy: SortBy;
   locationFilter: LocationFilter;
+  searchTerm: string;
   setTotalJobs: (value: JobApplication[]) => void;
   setSortBy: (value: SortBy) => void;
   setLocationFilter: (value: LocationFilter) => void;
-  sortAndFilterJobs: () => void;
+  setSearchTerm: (value: string) => void;
+  sortJobs: (jobs: JobApplication[], sortBy: SortBy) => JobApplication[];
+  filterJobs: (
+    jobs: JobApplication[],
+    locationFilter: LocationFilter,
+  ) => JobApplication[];
+  applyFilters: () => void;
 }
 
 export const useJobAppStore = create<IJobAppStore>((set, get) => ({
@@ -33,79 +38,94 @@ export const useJobAppStore = create<IJobAppStore>((set, get) => ({
   archivedJobs: [],
   sortBy: "stageOfApplication-desc", // default
   locationFilter: "",
+  searchTerm: "",
 
   setTotalJobs: (value: JobApplication[]) => {
     set({ totalJobs: value });
-    get().sortAndFilterJobs();
+    get().applyFilters();
   },
 
   setSortBy: (value: SortBy) => {
     set({ sortBy: value });
-    get().sortAndFilterJobs();
+    get().applyFilters();
   },
 
   setLocationFilter: (value: LocationFilter) => {
     set({ locationFilter: value });
-    get().sortAndFilterJobs();
+    get().applyFilters();
   },
 
-  sortAndFilterJobs: () => {
-    const { totalJobs, sortBy, locationFilter } = get();
+  setSearchTerm: (value: string) => {
+    set({ searchTerm: value });
+    get().applyFilters();
+  },
 
-    const sortedJobs = [...totalJobs];
+  sortJobs: (jobs: JobApplication[], sortBy: SortBy) => {
     switch (sortBy) {
       case "stageOfApplication-desc":
-        sortedJobs.sort((a, b) =>
+        return jobs.sort((a, b) =>
           b.stageOfApplication! > a.stageOfApplication! ? 1 : -1,
         );
-        break;
       case "stageOfApplication-asc":
-        sortedJobs.sort((a, b) =>
-          a.stageOfApplication! > b.stageOfApplication! ? 1 : -1,
+        return jobs.sort((a, b) =>
+          b.stageOfApplication! > a.stageOfApplication! ? -1 : 1,
         );
-        break;
       case "dateApplied-desc":
-        sortedJobs.sort(
+        return jobs.sort(
           (a, b) =>
             new Date(b.dateApplied).getTime() -
             new Date(a.dateApplied).getTime(),
         );
-        break;
       case "dateApplied-asc":
-        sortedJobs.sort(
+        return jobs.sort(
           (a, b) =>
             new Date(a.dateApplied).getTime() -
             new Date(b.dateApplied).getTime(),
         );
-        break;
       case "company-desc":
-        sortedJobs.sort((a, b) => b.company!.localeCompare(a.company!));
-        break;
+        return jobs.sort((a, b) => b.company!.localeCompare(a.company!));
       case "company-asc":
-        sortedJobs.sort((a, b) => a.company!.localeCompare(b.company!));
-        break;
+        return jobs.sort((a, b) => a.company!.localeCompare(b.company!));
       case "title-desc":
-        sortedJobs.sort((a, b) => b.title!.localeCompare(a.title!));
-        break;
+        return jobs.sort((a, b) => b.title!.localeCompare(a.title!));
       case "title-asc":
-        sortedJobs.sort((a, b) => a.title!.localeCompare(b.title!));
-        break;
+        return jobs.sort((a, b) => a.title!.localeCompare(b.title!));
       default:
-        break;
+        return jobs;
     }
+  },
 
-    let filteredJobs = sortedJobs;
-    if (locationFilter) {
-      filteredJobs = sortedJobs.filter((job) => {
-        if (locationFilter === "remote") return job.isRemote;
-        if (locationFilter === "usbased") return job.isUSBased;
-        if (locationFilter === "outsideus") return job.isOutsideUS;
-        return true;
-      });
+  filterJobs: (jobs: JobApplication[], locationFilter: LocationFilter) => {
+    switch (locationFilter) {
+      case "remote":
+        return jobs.filter((job) => job.isRemote);
+      case "usbased":
+        return jobs.filter((job) => job.isUSBased);
+      case "outsideus":
+        return jobs.filter((job) => job.isOutsideUS);
+      default:
+        return jobs;
     }
+  },
 
-    const activeJobs = filteredJobs.filter((job) => !job.isArchived);
-    const archivedJobs = filteredJobs.filter((job) => job.isArchived);
+  applyFilters: () => {
+    const {
+      totalJobs,
+      sortBy,
+      locationFilter,
+      searchTerm,
+      sortJobs,
+      filterJobs,
+    } = get();
+    const sortedJobs = sortJobs(totalJobs, sortBy);
+    const filteredJobs = filterJobs(sortedJobs, locationFilter);
+    const searchedJobs = filteredJobs.filter(
+      (job) =>
+        job.title?.toLowerCase().includes(searchTerm.toLowerCase()) ??
+        job.company?.toLowerCase().includes(searchTerm.toLowerCase()),
+    );
+    const activeJobs = searchedJobs.filter((job) => !job.isArchived);
+    const archivedJobs = searchedJobs.filter((job) => job.isArchived);
 
     set({
       activeJobs: activeJobs,

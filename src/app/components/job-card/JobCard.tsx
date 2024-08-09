@@ -1,5 +1,5 @@
 import React from "react";
-import { type JobApplication } from "~/helpers/types";
+import { type JobApplication } from "~/lib/helpers/types";
 import {
   Dialog,
   DialogContent,
@@ -10,7 +10,7 @@ import {
 import { Button } from "../ui/button";
 import Image from "next/image";
 import MapMarker from "../../../../public/images/map-marker.svg";
-import { transformStageOfApplication } from "~/helpers/string-functions";
+import { transformStageOfApplication } from "~/lib/helpers/string-functions";
 import JobLinkButton from "./JobLinkButton";
 import JobInfo from "./JobInfo";
 import JobOptionsDropDown from "./JobOptionsDropDown";
@@ -84,7 +84,11 @@ const JobCard: React.FC<IJobCardProps> = ({ job }) => {
               <div className=" absolute right-10 top-[14px]">
                 <JobOptionsDropDown job={job} />
               </div>
-              {isEditing ? <EditingJobInfo job={job} modalCloseReset={modalCloseReset} /> : <JobInfo job={job} />}
+              {isEditing ? (
+                <EditingJobInfo job={job} modalCloseReset={modalCloseReset} />
+              ) : (
+                <JobInfo job={job} />
+              )}
             </DialogContent>
           </Dialog>
           <JobLinkButton jobURL={job.jobURL} />

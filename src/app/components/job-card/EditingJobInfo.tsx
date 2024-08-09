@@ -2,7 +2,7 @@
 
 import React, { useEffect } from "react";
 
-import { type JobApplication } from "~/helpers/types";
+import { type JobApplication } from "~/lib/helpers/types";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -11,7 +11,7 @@ import { useJobInfoStore } from "~/stores/jobInfoStore";
 import USBasedLocationSelection from "./new-jobs/USBasedLocationSelection";
 import OutsideUSLocationSelection from "./new-jobs/OutsideUSLocationSelection";
 import { Button } from "../ui/button";
-import { api } from "~/helpers/api";
+import { api } from "~/lib/helpers/api";
 
 interface IEditingJobCardProps {
   job: JobApplication;
@@ -47,7 +47,7 @@ const editJobApplicationSchema = (locationRadioSelection: string) => {
         .min(2, { message: "You need at least two characters" })
         .max(75, { message: "You have exceeded the characters amount." }),
       salary: z.string().optional(),
-      jobURL: z.string().url(),
+      jobURL: z.string(),
       city: z
         .string()
         // .min(2, { message: "You need at least two characters" })
@@ -148,7 +148,7 @@ const EditingJobInfo = ({ job, modalCloseReset }: IEditingJobCardProps) => {
       country: job.country ?? "",
     },
   });
-  console.log("Form Errors:", errors);
+  // console.log("Form Errors:", errors);
   const utils = api.useUtils();
 
   const editJobApp = api.jobApplicationsRouter.editJobApplication.useMutation({

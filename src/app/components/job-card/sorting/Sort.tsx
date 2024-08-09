@@ -1,8 +1,9 @@
 import React, { useState } from "react";
 import { ChevronDown, ChevronUp } from "lucide-react";
 import { useJobAppStore } from "~/stores/jobAppStore";
-import { RadioGroup, RadioGroupItem } from "../ui/radio-group";
-import { Label } from "../ui/label";
+import { RadioGroup, RadioGroupItem } from "../../ui/radio-group";
+import { Label } from "../../ui/label";
+import { Button } from "../../ui/button";
 
 interface ISortProps {
   setOpen: React.Dispatch<React.SetStateAction<boolean>>;
@@ -30,7 +31,7 @@ const Sort = ({ setOpen }: ISortProps) => {
               color={sortBy === "stageOfApplication-asc" ? "black" : "gray"}
               onClick={() => {
                 setSortBy("stageOfApplication-asc");
-                setOpen(false);
+                
               }}
             />
             <ChevronDown
@@ -38,7 +39,7 @@ const Sort = ({ setOpen }: ISortProps) => {
               color={sortBy === "stageOfApplication-desc" ? "black" : "gray"}
               onClick={() => {
                 setSortBy("stageOfApplication-desc");
-                setOpen(false);
+                
               }}
             />
           </div>
@@ -52,7 +53,7 @@ const Sort = ({ setOpen }: ISortProps) => {
               color={sortBy === "title-asc" ? "black" : "gray"}
               onClick={() => {
                 setSortBy("title-asc");
-                setOpen(false);
+                
               }}
             />
             <ChevronDown
@@ -60,7 +61,7 @@ const Sort = ({ setOpen }: ISortProps) => {
               color={sortBy === "title-desc" ? "black" : "gray"}
               onClick={() => {
                 setSortBy("title-desc");
-                setOpen(false);
+                
               }}
             />
           </div>
@@ -74,7 +75,7 @@ const Sort = ({ setOpen }: ISortProps) => {
               color={sortBy === "company-asc" ? "black" : "gray"}
               onClick={() => {
                 setSortBy("company-asc");
-                setOpen(false);
+                
               }}
             />
             <ChevronDown
@@ -82,7 +83,7 @@ const Sort = ({ setOpen }: ISortProps) => {
               color={sortBy === "company-desc" ? "black" : "gray"}
               onClick={() => {
                 setSortBy("company-desc");
-                setOpen(false);
+                
               }}
             />
           </div>
@@ -96,7 +97,7 @@ const Sort = ({ setOpen }: ISortProps) => {
               color={sortBy === "dateApplied-asc" ? "black" : "gray"}
               onClick={() => {
                 setSortBy("dateApplied-asc");
-                setOpen(false);
+                
               }}
             />
             <ChevronDown
@@ -104,7 +105,7 @@ const Sort = ({ setOpen }: ISortProps) => {
               color={sortBy === "dateApplied-desc" ? "black" : "gray"}
               onClick={() => {
                 setSortBy("dateApplied-desc");
-                setOpen(false);
+                
               }}
             />
           </div>
@@ -149,6 +150,20 @@ const Sort = ({ setOpen }: ISortProps) => {
             </Label>
           </div>
         </RadioGroup>
+      </div>
+      <div className="flex justify-around pt-6">
+        <Button
+          variant="destructive"
+          onClick={() => {
+            setLocationFilter("");
+            setOpen(false);
+          }}
+        >
+          Reset Filters
+        </Button>
+        <Button variant="default" onClick={() => setOpen(false)}>
+          Apply
+        </Button>
       </div>
     </div>
   );

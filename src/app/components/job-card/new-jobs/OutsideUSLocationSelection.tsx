@@ -1,5 +1,5 @@
 import React, { type ChangeEvent } from "react";
-import { type JobApplication } from "~/helpers/types";
+import { type JobApplication } from "~/lib/helpers/types";
 import { cn } from "~/lib/utils";
 import { useJobInfoStore } from "~/stores/jobInfoStore";
 

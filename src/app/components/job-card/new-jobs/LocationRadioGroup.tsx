@@ -3,7 +3,7 @@
 import React, { useCallback, useEffect } from "react";
 import { RadioGroup, RadioGroupItem } from "../../ui/radio-group";
 import { useJobInfoStore } from "~/stores/jobInfoStore";
-import { type JobApplication } from "~/helpers/types";
+import { type JobApplication } from "~/lib/helpers/types";
 
 interface ILocationRadioGroupProps {
   job?: JobApplication;
@@ -16,7 +16,6 @@ const LocationRadioGroup = ({ job }: ILocationRadioGroupProps) => {
   const handleRadioChange = useCallback(
     (value: "remote" | "usbased" | "outsideus") => {
       setLocationRadioSelection(value);
-      
     },
     [setLocationRadioSelection],
   );

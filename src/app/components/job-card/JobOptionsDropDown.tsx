@@ -18,11 +18,12 @@ import {
   Package,
   FolderOpen,
 } from "lucide-react";
-import { type JobApplication } from "~/helpers/types";
+import { type JobApplication } from "~/lib/helpers/types";
 import { useJobInfoStore } from "~/stores/jobInfoStore";
-import { api } from "~/helpers/api";
+import { api } from "~/lib/helpers/api";
 import { Dialog, DialogContent, DialogTrigger } from "../ui/dialog";
 import { Button } from "../ui/button";
+import UpdateApplicationStatus from "./UpdateApplicationStatus";
 
 interface IJobCardProps {
   job: JobApplication;
@@ -49,10 +50,22 @@ const JobOptionsDropDown = ({ job }: IJobCardProps) => {
 
   const archiveJob = () => archiveJobApplication.mutate({ id: job.id });
 
-  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [deleteConfirmationDialogOpen, setDeleteConfirmationDialogOpen] =
+    useState(false);
 
-  const openDialog = () => setIsDialogOpen(true);
-  const closeDialog = () => setIsDialogOpen(false);
+  const [stageOfApplicationDialogOpen, setStateOfApplicationDialogOpen] =
+    useState(false);
+
+  const openDeleteConfirmationDialog = () =>
+    setDeleteConfirmationDialogOpen(true);
+  const closeDeleteConfirmationDialog = () =>
+    setDeleteConfirmationDialogOpen(false);
+
+  const openStageOfApplicationDialog = () =>
+    setStateOfApplicationDialogOpen(true);
+  const closeStageOfApplicationDialog = () =>
+    setStateOfApplicationDialogOpen(false);
+
   return (
     <>
       <DropdownMenu>
@@ -69,7 +82,7 @@ const JobOptionsDropDown = ({ job }: IJobCardProps) => {
                 Edit Job Info
               </span>
             </DropdownMenuItem>
-            <DropdownMenuItem>
+            <DropdownMenuItem onClick={openStageOfApplicationDialog}>
               <ArrowBigUp className="mr-2 h-4 w-4" fill="green" />
               <span className="cursor-pointer hover:font-bold hover:duration-100">
                 Upgrade App Status
@@ -91,7 +104,7 @@ const JobOptionsDropDown = ({ job }: IJobCardProps) => {
                 </span>
               </DropdownMenuItem>
             )}
-            <DropdownMenuItem onClick={openDialog}>
+            <DropdownMenuItem onClick={openDeleteConfirmationDialog}>
               <Trash2 className="mr-2 h-4 w-4" />
               <span className="cursor-pointer hover:font-bold hover:duration-100">
                 Delete Job App
@@ -100,23 +113,34 @@ const JobOptionsDropDown = ({ job }: IJobCardProps) => {
           </DropdownMenuGroup>
         </DropdownMenuContent>
       </DropdownMenu>
-      <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+      <Dialog
+        open={deleteConfirmationDialogOpen}
+        onOpenChange={setDeleteConfirmationDialogOpen}
+      >
         <DialogContent className="w-2/3 rounded-2xl">
           <p>Are you sure you want to delete this job application?</p>
           <div className=" m-auto flex justify-around gap-10">
-            <Button variant="outline" onClick={closeDialog}>
+            <Button variant="outline" onClick={closeDeleteConfirmationDialog}>
               Cancel
             </Button>
             <Button
               variant="destructive"
               onClick={() => {
                 deleteJob();
-                closeDialog();
+                closeDeleteConfirmationDialog();
               }}
             >
               Delete
             </Button>
           </div>
+        </DialogContent>
+      </Dialog>
+      <Dialog
+        open={stageOfApplicationDialogOpen}
+        onOpenChange={setStateOfApplicationDialogOpen}
+      >
+        <DialogContent className="w-[300px] rounded-2xl">
+          <UpdateApplicationStatus job={job} closeStageOfApplicationDialog={closeStageOfApplicationDialog}  />
         </DialogContent>
       </Dialog>
     </>

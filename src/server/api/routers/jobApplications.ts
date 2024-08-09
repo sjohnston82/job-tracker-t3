@@ -1,20 +1,46 @@
-import { eq, not } from "drizzle-orm";
+import { and, count, eq, not } from "drizzle-orm";
 import { z } from "zod";
 import { uuid } from "uuidv4";
 
 import { createTRPCRouter, protectedProcedure } from "~/server/api/trpc";
 import { db } from "~/server/db";
 import { jobApplications, users } from "~/server/db/schema";
-import { formatDate } from "~/helpers/date-functions";
-import { capitalizeFirstLetter } from "~/helpers/string-functions";
+import { formatDate, formatApptDate } from "~/lib/helpers/date-functions";
+import { capitalizeFirstLetter } from "~/lib/helpers/string-functions";
 
 type JobApplication = typeof jobApplications.$inferInsert;
 
 export const jobApplicationsRouter = createTRPCRouter({
   getAllJobs: protectedProcedure
-    .input(z.object({ userId: z.string() }))
+    .input(
+      z.object({
+        userId: z.string(),
+        page: z.number(),
+        totalItems: z.number(),
+        showActive: z.boolean(),
+      }),
+    )
     .query(async ({ input }) => {
-      const { userId } = input;
+      const { userId, showActive } = input;
+      const offset = (input.page - 1) * input.totalItems;
+      const limit = input.totalItems;
+
+      // const [totalCount] = await db
+      //   .select({ count: count() })
+      //   .from(jobApplications);
+
+      const [activeCount] = await db
+        .select({ count: count() })
+        .from(jobApplications)
+        .where(eq(jobApplications.isArchived, false));
+
+      const [archivedCount] = await db
+        .select({ count: count() })
+        .from(jobApplications)
+        .where(eq(jobApplications.isArchived, true));
+
+      const activePages = Math.ceil(activeCount!.count / limit);
+      const archivedPages = Math.ceil(archivedCount!.count / limit);
 
       const user = await db.select().from(users).where(eq(users.id, userId));
 
@@ -27,16 +53,39 @@ export const jobApplicationsRouter = createTRPCRouter({
         throw new Error("User ID is undefined");
       }
 
+      let jobs;
+
       try {
-        const jobs = await db
-          .select()
-          .from(jobApplications)
-          .where(eq(jobApplications.owner, currentUser.id));
+        if (showActive) {
+          jobs = await db
+            .select()
+            .from(jobApplications)
+            .offset(offset)
+            .limit(limit)
+            .where(
+              and(
+                eq(jobApplications.owner, currentUser.id),
+                eq(jobApplications.isArchived, false),
+              ),
+            );
+        } else {
+          jobs = await db
+            .select()
+            .from(jobApplications)
+            .offset(offset)
+            .limit(limit)
+            .where(
+              and(
+                eq(jobApplications.owner, currentUser.id),
+                eq(jobApplications.isArchived, true),
+              ),
+            );
+        }
 
         if (!jobs) {
           return "There are no jobs added yet.  You must add a job.";
         } else {
-          return jobs;
+          return { jobs, activePages, archivedPages };
         }
       } catch (error) {
         console.error("Error fetching job applications:", error);
@@ -186,7 +235,6 @@ export const jobApplicationsRouter = createTRPCRouter({
         city,
         state,
         jobURL,
-        dateApplied,
         salary,
         salaryType,
         jobType,
@@ -248,6 +296,41 @@ export const jobApplicationsRouter = createTRPCRouter({
       await db
         .update(jobApplications)
         .set({ isArchived: not(jobApplications.isArchived) })
+        .where(eq(jobApplications.id, id))
+        .returning({ id: jobApplications.id });
+    }),
+
+  updateApplicationStatus: protectedProcedure
+    .input(
+      z.object({
+        id: z.string(),
+        updatedStage: z.number(),
+      }),
+    )
+    .mutation(async ({ input }) => {
+      const { id, updatedStage } = input;
+
+      await db
+        .update(jobApplications)
+        .set({ stageOfApplication: updatedStage })
+        .where(eq(jobApplications.id, id))
+        .returning({ id: jobApplications.id });
+    }),
+
+  addAppointmentTime: protectedProcedure
+    .input(
+      z.object({
+        id: z.string(),
+        appointmentTime: z.string(),
+      }),
+    )
+    .mutation(async ({ input }) => {
+      const { id, appointmentTime } = input;
+
+      const formattedApptTime = formatApptDate(appointmentTime);
+      await db
+        .update(jobApplications)
+        .set({ nextAppointment: formattedApptTime })
         .where(eq(jobApplications.id, id))
         .returning({ id: jobApplications.id });
     }),

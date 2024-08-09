@@ -1,23 +1,23 @@
 "use client";
 
 import React, { useState } from "react";
-import { Button } from "../ui/button";
+
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from "../ui/dialog";
+} from "../../ui/dialog";
 import Sort from "./Sort";
-import { useJobAppStore } from "~/stores/jobAppStore";
+
 
 const JobSortContainer = () => {
-  const { sortBy, setSortBy } = useJobAppStore();
-  const [open, setOpen] = useState(false)
+
+  const [open, setOpen] = useState(false);
 
   return (
-    // todo: add dialog modal to open on sort button click
+    
     <div className="flex justify-end px-4 py-4">
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogTrigger asChild>

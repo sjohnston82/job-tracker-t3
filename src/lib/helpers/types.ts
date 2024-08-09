@@ -6,7 +6,7 @@ export type JobApplication = {
   dateApplied: Date;
   dateAppliedReadable: string | null;
   daysSinceInitialSubmission: number | null;
-  jobURL: Url;
+  jobURL: string | null;
   jobSource: string | null;
   salary: string | null;
   salaryType: string | null;
@@ -33,4 +33,5 @@ export type JobApplication = {
   country: string | null;
   city: string | null;
   state: string | null;
+  nextAppointment: string | null;
 };

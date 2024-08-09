@@ -1,4 +1,5 @@
 import { relations, sql } from "drizzle-orm";
+import { datetime } from "drizzle-orm/mysql-core";
 import {
   index,
   integer,
@@ -61,6 +62,7 @@ export const jobApplications = createTable("jobApplication", {
   country: varchar("country", { length: 255 }),
   city: varchar("city", { length: 255 }),
   state: varchar("state", { length: 255 }),
+  nextAppointment: varchar("nextAppointment"),
 });
 
 export const users = createTable("user", {

@@ -14,7 +14,7 @@ import OutsideUSLocationSelection from "./OutsideUSLocationSelection";
 import { cn } from "~/lib/utils";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { api } from "~/helpers/api";
+import { api } from "~/lib/helpers/api";
 import { useAuthStore } from "~/stores/authStore";
 
 interface INewJobFormProps {
@@ -50,7 +50,7 @@ const createAddJobApplicationSchema = (locationRadioSelection: string) => {
         .min(2, { message: "You need at least two characters" })
         .max(75, { message: "You have exceeded the characters amount." }),
       salary: z.string().optional(),
-      jobURL: z.string().url(),
+      jobURL: z.string(),
       city: z
         .string()
         // .min(2, { message: "You need at least two characters" })
@@ -145,7 +145,6 @@ const NewJobForm = ({ setOpen }: INewJobFormProps) => {
     },
   });
 
-  // console.log("Form Errors:", errors);
 
   useEffect(() => {
     setValue("city", city);
@@ -159,11 +158,6 @@ const NewJobForm = ({ setOpen }: INewJobFormProps) => {
     setValue("country", country);
   }, [country, setValue]);
 
-  // useEffect(() => {
-  //   if (locationRadioSelection === "remote") {
-  //     setValue("isRemote", true);
-  //   }
-  // }, [locationRadioSelection, setValue]);
 
   const utils = api.useUtils();
 

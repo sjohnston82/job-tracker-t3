@@ -1,5 +1,5 @@
 import { create } from "zustand";
-import { type JobApplication } from "~/helpers/types";
+import { type JobApplication } from "~/lib/helpers/types";
 
 type SortBy =
   | "stageOfApplication-asc"
@@ -30,6 +30,10 @@ interface IJobAppStore {
     locationFilter: LocationFilter,
   ) => JobApplication[];
   applyFilters: () => void;
+  totalActivePages: number;
+  setTotalActivePages: (value: number) => void;
+  totalArchivedPages: number;
+  setTotalArchivedPages: (value: number) => void;
 }
 
 export const useJobAppStore = create<IJobAppStore>((set, get) => ({
@@ -39,6 +43,15 @@ export const useJobAppStore = create<IJobAppStore>((set, get) => ({
   sortBy: "stageOfApplication-desc", // default
   locationFilter: "",
   searchTerm: "",
+  totalActivePages: 0,
+  setTotalActivePages: (value: number) => {
+    set({ totalActivePages: value });
+  },
+
+  totalArchivedPages: 0,
+  setTotalArchivedPages: (value: number) => {
+    set({ totalArchivedPages: value });
+  },
 
   setTotalJobs: (value: JobApplication[]) => {
     set({ totalJobs: value });
@@ -128,8 +141,8 @@ export const useJobAppStore = create<IJobAppStore>((set, get) => ({
     const archivedJobs = searchedJobs.filter((job) => job.isArchived);
 
     set({
-      activeJobs: activeJobs,
-      archivedJobs: archivedJobs,
+      activeJobs,
+      archivedJobs,
     });
   },
 }));

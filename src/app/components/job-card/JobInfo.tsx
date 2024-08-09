@@ -1,7 +1,7 @@
 import React from "react";
-import { type JobApplication } from "~/helpers/types";
-import { transformStageOfApplication } from "~/helpers/string-functions";
-
+import { type JobApplication } from "~/lib/helpers/types";
+import { transformStageOfApplication } from "~/lib/helpers/string-functions";
+import { parse, isFuture } from "date-fns";
 
 interface IJobCardProps {
   job: JobApplication;
@@ -18,10 +18,16 @@ const JobInfo = ({ job }: IJobCardProps) => {
       ? jobURLString
       : `https://${jobURLString}`;
 
+const appointmentDate = job.nextAppointment
+  ? parse(job.nextAppointment as unknown as string, "MMMM do, yyyy h:mma", new Date())
+  : null;
+
+// Check if the parsed date is in the future
+const isFutureAppointment =
+  appointmentDate && appointmentDate.getTime() > Date.now();
+
   return (
     <div className="relative flex w-full flex-col items-center justify-center gap-2">
-     
-
       <div className="w-full flex-col items-center justify-center gap-2 text-center">
         <p className="font-semibold underline ">Title: </p>
         <p className="w-full bg-light-gray">{job.title}</p>
@@ -37,6 +43,14 @@ const JobInfo = ({ job }: IJobCardProps) => {
         <p className="w-full bg-light-gray">
           {transformStageOfApplication(job.stageOfApplication)}
         </p>
+        {isFutureAppointment && (
+          <>
+            <p className="font-semibold underline">Next Appointment: </p>
+            <p className="w-full bg-blue-200">
+              {job.nextAppointment?.toString()}
+            </p>
+          </>
+        )}
       </div>
 
       <div className="w-full flex-col items-center justify-center gap-2 text-center">
@@ -67,7 +81,7 @@ const JobInfo = ({ job }: IJobCardProps) => {
         <div className="w-full flex-col items-center justify-center gap-2 text-center">
           <p className="font-semibold underline">Job Type:</p>
           {job.jobType ? (
-            <p className="w-full bg-light-gray">{job.jobType}</p>
+            <p className="w-full bg-light-gray">{job.jobType as unknown as string}</p>
           ) : (
             <p className="w-full bg-light-gray">Unknown</p>
           )}

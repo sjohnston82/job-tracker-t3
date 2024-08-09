@@ -17,6 +17,7 @@ import {
 } from "../ui/pagination";
 import { api } from "~/lib/helpers/api";
 import { cn } from "~/lib/utils";
+import SkeletonCard from "../ui/SkeletonCard";
 
 const JobCardContainer = () => {
   const {
@@ -33,7 +34,7 @@ const JobCardContainer = () => {
   const searchParams = useSearchParams();
 
   const DEFAULT_PAGE = 1;
-  const DEFAULT_TOTAL_ITEMS = 1;
+  const DEFAULT_TOTAL_ITEMS = 2;
 
   const page = parseInt(searchParams.get("page") ?? `${DEFAULT_PAGE}`, 10);
   const totalItems = parseInt(
@@ -47,32 +48,35 @@ const JobCardContainer = () => {
         userId: user?.id ?? "",
         page: page < 1 ? DEFAULT_PAGE : page,
         totalItems: totalItems < 1 ? DEFAULT_TOTAL_ITEMS : totalItems,
-        showActive: showingActive
+        showActive: showingActive,
       }, // Ensure a valid user ID is passed
       {
         enabled: !!user?.id, // Only fetch if user ID is available
       },
     );
 
-    useEffect(() => {
-      if (data && typeof data !== "string") {
-      
-      
+  useEffect(() => {
+    if (data && typeof data !== "string") {
       setTotalJobs(data.jobs);
       setTotalActivePages(data.activePages);
       setTotalArchivedPages(data.archivedPages);
     }
   }, [data, setTotalActivePages, setTotalArchivedPages, setTotalJobs]);
 
-  if (isLoading) return <p>Loading...</p>;
+  if (isLoading)
+    return (
+      <div className="flex w-full flex-col items-center justify-center gap-6">
+        <SkeletonCard totalItems={totalItems} />
+      </div>
+    );
   if (error) return <p>Error: {error.message}</p>;
 
   const nextHref = showingActive
     ? page < totalActivePages
-      ? `?page=${page + 1}&totalItems=${totalItems}` 
-      : `?page=${totalActivePages}&totalItems=${totalItems}` 
+      ? `?page=${page + 1}&totalItems=${totalItems}`
+      : `?page=${totalActivePages}&totalItems=${totalItems}`
     : page < totalArchivedPages
-      ? `?page=${page + 1}&totalItems=${totalItems}` 
+      ? `?page=${page + 1}&totalItems=${totalItems}`
       : `?page=${totalArchivedPages}&totalItems=${totalItems}`;
 
   return (
@@ -122,12 +126,21 @@ const JobCardContainer = () => {
               <PaginationEllipsis />
             </PaginationItem>
             <PaginationItem>
-              <PaginationNext href={nextHref} />
+              <PaginationNext
+                href={nextHref}
+                className={cn("", {
+                  "cursor-default text-gray-300 hover:bg-transparent hover:text-gray-300":
+                    (showingActive && page === totalActivePages) ||
+                    (showingActive && totalActivePages === 0) ||
+                    (!showingActive && page === totalArchivedPages) ||
+                    (!showingActive && totalArchivedPages === 0),
+                })}
+              />
             </PaginationItem>
           </PaginationContent>
         </Pagination>
       </div>
-    </div>                       
+    </div>
   );
 };
 

@@ -24,7 +24,7 @@ const UpdateApplicationStatus = ({
 
   const updateAppStatus =
     api.jobApplicationsRouter.updateApplicationStatus.useMutation({
-      onSuccess: () => utils.invalidate(),
+      onSuccess: () => !addingDate && utils.invalidate(),
       onError: (err) => console.log(err),
     });
 
@@ -42,7 +42,7 @@ const UpdateApplicationStatus = ({
   const appointmentTimeMutation = (apptTime: string) => {
     addAppointmentTime.mutate({ id: job.id, appointmentTime: apptTime });
     closeStageOfApplicationDialog();
-    console.log(apptTime)
+    console.log(apptTime);
   };
 
   const closeApptDateDialog = () => {

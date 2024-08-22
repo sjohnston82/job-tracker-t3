@@ -55,6 +55,8 @@ const JobCardContainer = () => {
       },
     );
 
+
+
   useEffect(() => {
     if (data && typeof data !== "string") {
       setTotalJobs(data.jobs);
@@ -84,9 +86,9 @@ const JobCardContainer = () => {
       {showingActive
         ? activeJobs?.map((job) => <JobCard key={job.id} job={job} />)
         : archivedJobs?.map((job) => <JobCard key={job.id} job={job} />)}
-      <p className="text-3xl">
+      {/* <p className="text-3xl">
         {showingActive ? totalActivePages : totalArchivedPages}
-      </p>
+      </p> */}
       <div className="">
         <Pagination>
           <PaginationContent>

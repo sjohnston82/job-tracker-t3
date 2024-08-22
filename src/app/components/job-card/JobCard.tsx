@@ -75,7 +75,7 @@ const JobCard: React.FC<IJobCardProps> = ({ job }) => {
                 More Info
               </Button>
             </DialogTrigger>
-            <DialogContent className="max-h-screen  max-w-[300px] overflow-y-scroll rounded-xl">
+            <DialogContent className="max-h-screen  max-w-[320px] overflow-y-scroll rounded-xl">
               <DialogHeader>
                 <DialogTitle className="">
                   {isEditing && "Editing Job App Info"}
@@ -91,7 +91,7 @@ const JobCard: React.FC<IJobCardProps> = ({ job }) => {
               )}
             </DialogContent>
           </Dialog>
-          <JobLinkButton jobURL={job.jobURL} />
+          <JobLinkButton jobURL={job.jobURL!} />
         </div>
       </div>
     </div>

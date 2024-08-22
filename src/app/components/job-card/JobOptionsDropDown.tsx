@@ -70,7 +70,7 @@ const JobOptionsDropDown = ({ job }: IJobCardProps) => {
     <>
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          <EllipsisVertical size={20} />
+          <EllipsisVertical size={20} className="cursor-pointer" />
         </DropdownMenuTrigger>
         <DropdownMenuContent className="w-56">
           <DropdownMenuLabel>{`Options for ${job.title}`}</DropdownMenuLabel>
@@ -140,7 +140,10 @@ const JobOptionsDropDown = ({ job }: IJobCardProps) => {
         onOpenChange={setStateOfApplicationDialogOpen}
       >
         <DialogContent className="w-[300px] rounded-2xl">
-          <UpdateApplicationStatus job={job} closeStageOfApplicationDialog={closeStageOfApplicationDialog}  />
+          <UpdateApplicationStatus
+            job={job}
+            closeStageOfApplicationDialog={closeStageOfApplicationDialog}
+          />
         </DialogContent>
       </Dialog>
     </>

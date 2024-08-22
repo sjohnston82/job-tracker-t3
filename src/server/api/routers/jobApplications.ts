@@ -334,4 +334,41 @@ export const jobApplicationsRouter = createTRPCRouter({
         .where(eq(jobApplications.id, id))
         .returning({ id: jobApplications.id });
     }),
+
+  uploadJobDocument: protectedProcedure
+    .input(
+      z.object({
+        id: z.string(),
+        docType: z.string(),
+        url: z.string(),
+      }),
+    )
+    .mutation(async ({ input }) => {
+      const { id, docType, url } = input;
+
+      if (docType === "resume") {
+        await db
+          .update(jobApplications)
+          .set({ resumeUploadURL: url })
+          .where(eq(jobApplications.id, id))
+          .returning({ id: jobApplications.id });
+      } else if (docType === "coverLetter") {
+        await db
+          .update(jobApplications)
+          .set({ coverLetterUploadURL: url })
+          .where(eq(jobApplications.id, id))
+          .returning({ id: jobApplications.id });
+      } else if (docType === "project") {
+        await db
+          .update(jobApplications)
+          .set({ projectURL: url })
+          .where(eq(jobApplications.id, id))
+          .returning({ id: jobApplications.id });
+      } else {
+        console.log("DocType was not specified.")
+      }
+
+    })
+
+    
 });
